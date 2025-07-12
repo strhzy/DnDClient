@@ -24,7 +24,6 @@ public partial class AppShell : Shell
     public void SetupAuthenticatedShell()
     {
         FlyoutBehavior = FlyoutBehavior.Flyout;
-        Task.Delay(1000);
         GoToAsync("//MainPage");
     }
 
@@ -32,7 +31,7 @@ public partial class AppShell : Shell
     {
         SecureStorage.Remove("auth_token");
         FlyoutBehavior = FlyoutBehavior.Disabled;
-        //Application.Current.MainPage = new AppShell(); // сбрасываем Shell
+        
         GoToAsync("//AuthPage");
     }
 }

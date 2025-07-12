@@ -30,9 +30,10 @@ public partial class AuthViewModel : ObservableObject
             {
                 await SecureStorage.SetAsync("auth_token", response.Token);
                 await SecureStorage.SetAsync("current_user", Email);
-                //await SecureStorage.SetAsync("current_user_id", ApiHelper.Get<List<User>>("User?email="+Email).FirstOrDefault().Id.ToString());
+                await SecureStorage.SetAsync("current_user_id", ApiHelper.Get<List<User>>("User?email="+Email).FirstOrDefault().Id.ToString());
                 var shell = (AppShell)Shell.Current;
-                shell.SetupAuthenticatedShell();
+                shell.FlyoutBehavior = FlyoutBehavior.Flyout;
+                await shell.GoToAsync("//MainPage");
             }
             else
             {
@@ -50,8 +51,8 @@ public partial class AuthViewModel : ObservableObject
     {
         try
         {
-            //var passwordHash = BCrypt.Net.BCrypt.HashPassword(Password);
-            var registerData = new { Email, PasswordHash = Password };
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(Password);
+            var registerData = new { Email, PasswordHash = passwordHash };
             var json = JsonConvert.SerializeObject(registerData);
             var success = ApiHelper.Post<object>(json, "Auth/register");
 
