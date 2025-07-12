@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DnDClient.Views.AuthPage">
+    <ContentPage.Content>
+        <VerticalStackLayout Padding="25" Spacing="10">
+            <Entry Placeholder="Эл.почта" Text="{Binding Email}" />
+            <Entry Placeholder="Пароль" IsPassword="True" Text="{Binding Password}" />
+            <Button Text="Вход" Command="{Binding LoginCommand}" />
+            <Button Text="Регистрация" Command="{Binding RegisterCommand}" />
+            <Label Text="{Binding Message}" />
+        </VerticalStackLayout>
+    </ContentPage.Content>
+</ContentPage>
