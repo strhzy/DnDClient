@@ -5,12 +5,15 @@
              xmlns:cards="clr-namespace:DnDClient.Views.Cards"
              x:Class="DnDClient.Views.CharactersPage">
     <ContentPage.Content>
-        <CollectionView ItemsSource="{Binding Characters}">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <cards:CharCard BindingContext="{Binding}" />
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+        <StackLayout Orientation="Vertical">
+            <Button Text="Добавить персонажа" Command="{Binding AddCommand}"></Button>
+            <CollectionView ItemsSource="{Binding Characters}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <cards:CharCard BindingContext="{Binding}" />
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </StackLayout>
     </ContentPage.Content>
 </ContentPage>

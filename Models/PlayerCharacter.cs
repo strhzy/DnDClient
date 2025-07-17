@@ -12,25 +12,25 @@ public partial class PlayerCharacter : ObservableObject
         private Guid id = Guid.NewGuid();
 
         [ObservableProperty]
-        private string name = string.Empty;
+        private string name = "default";
 
         [ObservableProperty]
-        private string playerName = string.Empty;
+        private string playerName = "default";
 
         [ObservableProperty]
-        private string classType = string.Empty;
+        private string classType = "default";
 
         [ObservableProperty]
-        private string background = string.Empty;
+        private string background = "default";
 
         [ObservableProperty]
-        private string race = string.Empty;
+        private string race = "default";
 
         [ObservableProperty]
-        private string alignment = string.Empty;
+        private string alignment = "default";
 
         [ObservableProperty]
-        private int experiencePoints;
+        private int experiencePoints = 0;
 
         [ObservableProperty]
         private int level = 1;
@@ -48,55 +48,55 @@ public partial class PlayerCharacter : ObservableObject
 
         // Валюта
         [ObservableProperty]
-        private int copperPieces;
+        private int copperPieces = 0;
 
         [ObservableProperty]
-        private int silverPieces;
+        private int silverPieces = 0;
 
         [ObservableProperty]
-        private int electrumPieces;
+        private int electrumPieces = 0;
 
         [ObservableProperty]
-        private int goldPieces;
+        private int goldPieces = 0;
 
         [ObservableProperty]
-        private int platinumPieces;
+        private int platinumPieces = 0;
 
         // Черты характера
         [ObservableProperty]
-        private string personalityTraits = string.Empty;
+        private string personalityTraits = "default";
 
         [ObservableProperty]
-        private string ideals = string.Empty;
+        private string ideals = "default";
 
         [ObservableProperty]
-        private string bonds = string.Empty;
+        private string bonds = "default";
 
         [ObservableProperty]
-        private string flaws = string.Empty;
+        private string flaws = "default";
 
         // Характеристики
         [ObservableProperty]
-        private int strength;
+        private int strength = 0;
 
         [ObservableProperty]
-        private int dexterity;
+        private int dexterity = 0;
 
         [ObservableProperty]
-        private int constitution;
+        private int constitution = 0;
 
         [ObservableProperty]
-        private int intelligence;
+        private int intelligence = 0;
 
         [ObservableProperty]
-        private int wisdom;
+        private int wisdom = 0;
 
         [ObservableProperty]
-        private int charisma;
+        private int charisma = 0;
 
         // Proficiency бонус
         [ObservableProperty]
-        private int proficiencyBonus;
+        private int proficiencyBonus = 0;
 
         // Saving throws proficiencies
         [ObservableProperty]
@@ -119,121 +119,121 @@ public partial class PlayerCharacter : ObservableObject
 
         // Saving throws
         [ObservableProperty]
-        private int savingThrowStrength;
+        private int savingThrowStrength = 0;
 
         [ObservableProperty]
-        private int savingThrowDexterity;
+        private int savingThrowDexterity = 0;
 
         [ObservableProperty]
-        private int savingThrowConstitution;
+        private int savingThrowConstitution = 0;
 
         [ObservableProperty]
-        private int savingThrowIntelligence;
+        private int savingThrowIntelligence = 0;
 
         [ObservableProperty]
-        private int savingThrowWisdom;
+        private int savingThrowWisdom = 0;
 
         [ObservableProperty]
-        private int savingThrowCharisma;
+        private int savingThrowCharisma = 0;
 
         // Навыки
         [ObservableProperty]
-        private int acrobatics;
+        private int acrobatics = 0;
 
         [ObservableProperty]
-        private int animalHandling;
+        private int animalHandling = 0;
 
         [ObservableProperty]
-        private int arcana;
+        private int arcana = 0;
 
         [ObservableProperty]
-        private int athletics;
+        private int athletics = 0;
 
         [ObservableProperty]
-        private int deception;
+        private int deception = 0;
 
         [ObservableProperty]
-        private int history;
+        private int history = 0;
 
         [ObservableProperty]
-        private int insight;
+        private int insight = 0;
 
         [ObservableProperty]
-        private int intimidation;
+        private int intimidation = 0;
 
         [ObservableProperty]
-        private int investigation;
+        private int investigation = 0;
 
         [ObservableProperty]
-        private int medicine;
+        private int medicine = 0;
 
         [ObservableProperty]
-        private int nature;
+        private int nature = 0;
 
         [ObservableProperty]
-        private int perception;
+        private int perception = 0;
 
         [ObservableProperty]
-        private int performance;
+        private int performance = 0;
 
         [ObservableProperty]
-        private int persuasion;
+        private int persuasion = 0;
 
         [ObservableProperty]
-        private int religion;
+        private int religion = 0;
 
         [ObservableProperty]
-        private int sleightOfHand;
+        private int sleightOfHand = 0;
 
         [ObservableProperty]
-        private int stealth;
+        private int stealth = 0;
 
         [ObservableProperty]
-        private int survival;
+        private int survival = 0;
 
         [ObservableProperty]
-        private int passiveWisdom;
+        private int passiveWisdom = 0;
 
         // Боевая статистика
         [ObservableProperty]
-        private int armorClass;
+        private int armorClass = 0;
 
         [ObservableProperty]
-        private int initiative;
+        private int initiative = 0;
 
         [ObservableProperty]
-        private int speed;
+        private int speed = 0;
 
         [ObservableProperty]
-        private int maxHitPoints;
+        private int maxHitPoints = 0;
 
         [ObservableProperty]
-        private int currentHitPoints;
+        private int currentHitPoints = 0;
 
         [ObservableProperty]
-        private int temporaryHitPoints;
+        private int temporaryHitPoints = 0;
 
         [ObservableProperty]
-        private string hitDice = string.Empty;
+        private string hitDice = "default";
 
         [ObservableProperty]
-        private int deathSaveSuccesses;
+        private int deathSaveSuccesses = 0;
 
         [ObservableProperty]
-        private int deathSaveFailures;
+        private int deathSaveFailures = 0;
 
         // Атаки и заклинания
         [ObservableProperty]
         private List<Attack> attacks = new();
 
         [ObservableProperty]
-        private string featuresAndTraits = string.Empty;
+        private string featuresAndTraits = "default";
 
         [ObservableProperty]
-        private string equipment = string.Empty;
+        private string equipment = "default";
 
         [ObservableProperty]
-        private string proficienciesAndLanguages = string.Empty;
+        private string proficienciesAndLanguages = "default";
 
         // Логика для saving throws
         private readonly Dictionary<string, (int Score, bool IsProficient, string SavingThrowProperty)> _abilityScores = new()
