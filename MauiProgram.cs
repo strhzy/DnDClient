@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using DnDClient.ViewModels;
+using DnDClient.Views;
+using Microsoft.Extensions.Logging;
 
 namespace DnDClient;
 
@@ -16,6 +18,10 @@ public static class MauiProgram
             });
         
         builder.Logging.AddConsole();
+        builder.Services.AddTransient<CharactersPage>();
+        builder.Services.AddTransient<CharactersViewModel>();
+        builder.Services.AddTransient<CharacterDetailsPage>();
+        
 #if DEBUG
         builder.Logging.AddDebug();
 #endif

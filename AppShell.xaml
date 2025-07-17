@@ -9,15 +9,20 @@
     Title="DnDClient">
 
     <ShellContent
-        Title="Auth"
+        Title="Вход"
         ContentTemplate="{DataTemplate views:AuthPage}"
         Route="AuthPage" 
         FlyoutItemIsVisible="False"/>
         
     <ShellContent
-        Title="Home"
+        Title="Главная"
         ContentTemplate="{DataTemplate views:MainPage}"
         Route="MainPage" />
+    
+    <ShellContent
+        Title="Персонажи"
+        ContentTemplate="{DataTemplate views:CharactersPage}"
+        Route="CharactersPage" />
 
     <MenuItem
         Text="Выход"

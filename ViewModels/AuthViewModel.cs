@@ -29,8 +29,10 @@ public partial class AuthViewModel : ObservableObject
             if (response != null && !string.IsNullOrEmpty(response.Token))
             {
                 await SecureStorage.SetAsync("auth_token", response.Token);
-                await SecureStorage.SetAsync("current_user", Email);
-                await SecureStorage.SetAsync("current_user_id", ApiHelper.Get<List<User>>("User?email="+Email).FirstOrDefault().Id.ToString());
+                Preferences.Set("current_user", Email);
+                Preferences.Set("current_user_id", ApiHelper.Get<List<User>>("User?email="+Email).FirstOrDefault().Id.ToString());
+                Email = string.Empty;
+                Password = string.Empty;
                 var shell = (AppShell)Shell.Current;
                 shell.FlyoutBehavior = FlyoutBehavior.Flyout;
                 await shell.GoToAsync("//MainPage");

@@ -1,0 +1,452 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DnDClient.Views.CharacterDetailsPage">
+    <ContentPage.Content>
+        <Grid RowDefinitions="2.5*,8*,6*,8*" ColumnDefinitions="*,*,*">
+            <!-- Character Info -->
+            <Grid Margin="2,0" Row="0" Column="0" ColumnSpan="3">
+                <Grid ColumnDefinitions="*,2.5*">
+                    <StackLayout VerticalOptions="Center" Margin="2,0" Grid.Column="0">
+                        <Entry Text="{Binding Name}" Placeholder="Имя персонажа" FontSize="Small" />
+                        <Label Text="Имя персонажа" FontSize="Micro" />
+                    </StackLayout>
+                    <Frame Margin="1" BorderColor="Black" CornerRadius="2" Grid.Column="1">
+                        <Grid RowDefinitions="*,*" ColumnDefinitions="*,*,0.7*,0.3*">
+                            <StackLayout Margin="2,0" Grid.Row="0" Grid.Column="0">
+                                <Entry Text="{Binding ClassType}" FontSize="Micro" Placeholder="Класс" />
+                                <Label Text="Класс" FontSize="Micro" />
+                            </StackLayout>
+                            <StackLayout Margin="2,0" Grid.Row="1" Grid.Column="0">
+                                <Entry Text="{Binding Race}" FontSize="Micro" Placeholder="Раса" />
+                                <Label Text="Раса" FontSize="Micro" />
+                            </StackLayout>
+                            <StackLayout Margin="2,0" Grid.Row="0" Grid.Column="1">
+                                <Entry Text="{Binding Background}" FontSize="Micro" Placeholder="Предыстория" />
+                                <Label Text="Предыстория" FontSize="Micro" />
+                            </StackLayout>
+                            <StackLayout Margin="2,0" Grid.Row="1" Grid.Column="1">
+                                <Entry Text="{Binding Alignment}" FontSize="Micro" Placeholder="Мировоззрение" />
+                                <Label Text="Мировоззрение" FontSize="Micro" />
+                            </StackLayout>
+                            <StackLayout Margin="2,0" Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2">
+                                <Entry Text="{Binding PlayerName}" FontSize="Micro" Placeholder="Имя игрока" />
+                                <Label Text="Имя игрока" FontSize="Micro" />
+                            </StackLayout>
+                            <StackLayout Margin="2,0" Grid.Row="1" Grid.Column="2">
+                                <Entry Text="{Binding ExperiencePoints}" FontSize="Micro" Placeholder="Опыт" />
+                                <Label Text="Опыт" FontSize="Micro" />
+                            </StackLayout>
+                            <StackLayout Margin="2,0" Grid.Row="1" Grid.Column="3">
+                                <Entry Text="{Binding Level}" FontSize="Micro" Placeholder="Уровень" />
+                                <Label Text="Уровень" FontSize="Micro" />
+                            </StackLayout>
+                        </Grid>
+                    </Frame>
+                </Grid>
+            </Grid>
+
+            <!-- Abilities and Saves -->
+            <Grid Row="1" RowSpan="2" Column="0">
+                <Grid RowDefinitions="*,*,3*,7*" ColumnDefinitions="*,2.5*">
+                    <Frame Grid.RowSpan="4" BackgroundColor="#eaeaea" CornerRadius="25" Margin="2,0,0,0">
+                        <StackLayout Margin="2">
+                            <!-- Strength -->
+                            <Frame BorderColor="Gray" BackgroundColor="White" CornerRadius="5" Margin="0,20,0,5">
+                                <StackLayout Margin="2">
+                                    <Label Text="Сила" FontSize="Micro" HorizontalOptions="Center"
+                                           FontAttributes="Bold" />
+                                    <Label Text="{Binding Strength, StringFormat='{0}'}" FontSize="Medium"
+                                           HorizontalOptions="Center" />
+                                    <Entry Text="{Binding Strength}" WidthRequest="25" FontSize="Small"
+                                           HorizontalOptions="Center" />
+                                </StackLayout>
+                            </Frame>
+                            <!-- Dexterity -->
+                            <Frame BorderColor="Gray" BackgroundColor="White" CornerRadius="5" Margin="0,7">
+                                <StackLayout Margin="2">
+                                    <Label Text="Ловкость" FontSize="Micro" HorizontalOptions="Center"
+                                           FontAttributes="Bold" />
+                                    <Label Text="{Binding Dexterity, StringFormat='{0}'}" FontSize="Medium"
+                                           HorizontalOptions="Center" />
+                                    <Entry Text="{Binding Dexterity}" WidthRequest="25" FontSize="Small"
+                                           HorizontalOptions="Center" />
+                                </StackLayout>
+                            </Frame>
+                            <!-- Constitution -->
+                            <Frame BorderColor="Gray" BackgroundColor="White" CornerRadius="5" Margin="0,7">
+                                <StackLayout Margin="2">
+                                    <Label Text="Телосложение" FontSize="Micro" HorizontalOptions="Center"
+                                           FontAttributes="Bold" />
+                                    <Label Text="{Binding Constitution, StringFormat='{0}'}" FontSize="Medium"
+                                           HorizontalOptions="Center" />
+                                    <Entry Text="{Binding Constitution}" WidthRequest="25" FontSize="Small"
+                                           HorizontalOptions="Center" />
+                                </StackLayout>
+                            </Frame>
+                            <!-- Intelligence -->
+                            <Frame BorderColor="Gray" BackgroundColor="White" CornerRadius="5" Margin="0,7">
+                                <StackLayout Margin="2">
+                                    <Label Text="Интеллект" FontSize="Micro" HorizontalOptions="Center"
+                                           FontAttributes="Bold" />
+                                    <Label Text="{Binding Intelligence, StringFormat='{0}'}" FontSize="Medium"
+                                           HorizontalOptions="Center" />
+                                    <Entry Text="{Binding Intelligence}" WidthRequest="25" FontSize="Small"
+                                           HorizontalOptions="Center" />
+                                </StackLayout>
+                            </Frame>
+                            <!-- Wisdom -->
+                            <Frame BorderColor="Gray" BackgroundColor="White" CornerRadius="5" Margin="0,7">
+                                <StackLayout Margin="2">
+                                    <Label Text="Мудрость" FontSize="Micro" HorizontalOptions="Center"
+                                           FontAttributes="Bold" />
+                                    <Label Text="{Binding Wisdom, StringFormat='{0}'}" FontSize="Medium"
+                                           HorizontalOptions="Center" />
+                                    <Entry Text="{Binding Wisdom}" WidthRequest="25" FontSize="Small"
+                                           HorizontalOptions="Center" />
+                                </StackLayout>
+                            </Frame>
+                            <!-- Charisma -->
+                            <Frame BorderColor="Gray" BackgroundColor="White" CornerRadius="5" Margin="0,5">
+                                <StackLayout Margin="2">
+                                    <Label Text="Харизма" FontSize="Micro" HorizontalOptions="Center"
+                                           FontAttributes="Bold" />
+                                    <Label Text="{Binding Charisma, StringFormat='{0}'}" FontSize="Medium"
+                                           HorizontalOptions="Center" />
+                                    <Entry Text="{Binding Charisma}" WidthRequest="25" FontSize="Small"
+                                           HorizontalOptions="Center" />
+                                </StackLayout>
+                            </Frame>
+                        </StackLayout>
+                    </Frame>
+                    <Frame Margin="5" Grid.Column="1" Grid.Row="0" BorderColor="Black" CornerRadius="5">
+                        <StackLayout Orientation="Horizontal" VerticalOptions="Center">
+                            <CheckBox IsChecked="{Binding Inspiration}" />
+                            <Label Text="Вдохновение" VerticalOptions="Center" />
+                        </StackLayout>
+                    </Frame>
+                    <Frame Margin="5" Grid.Column="1" Grid.Row="1" BorderColor="Black" CornerRadius="5">
+                        <StackLayout Orientation="Horizontal" VerticalOptions="Center">
+                            <Label Text="+" VerticalOptions="Center" />
+                            <Entry Text="{Binding ProficiencyBonus}" WidthRequest="20" VerticalOptions="Center"
+                                   Margin="0,0,4,0" />
+                            <Label Text="Бонус владения" VerticalOptions="Center" />
+                        </StackLayout>
+                    </Frame>
+                    <Frame Grid.Row="2" Grid.Column="1" Margin="5" BorderColor="Black" CornerRadius="5">
+                        <Grid RowDefinitions="*,*,*,*,*,*,*">
+                            <StackLayout Grid.Row="0" Orientation="Horizontal">
+                                <CheckBox IsChecked="{Binding SavingThrowStrengthProficiency}" />
+                                <Entry Text="{Binding SavingThrowStrength}" WidthRequest="25" />
+                                <Label Text="Сила" FontSize="Small" VerticalOptions="Center" Margin="5,0" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="1" Orientation="Horizontal">
+                                <CheckBox IsChecked="{Binding SavingThrowDexterityProficiency}" />
+                                <Entry Text="{Binding SavingThrowDexterity}" WidthRequest="25" />
+                                <Label Text="Ловкость" FontSize="Small" VerticalOptions="Center" Margin="5,0" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="2" Orientation="Horizontal">
+                                <CheckBox IsChecked="{Binding SavingThrowConstitutionProficiency}" />
+                                <Entry Text="{Binding SavingThrowConstitution}" WidthRequest="25" />
+                                <Label Text="Телосложение" FontSize="Small" VerticalOptions="Center" Margin="5,0" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="3" Orientation="Horizontal">
+                                <CheckBox IsChecked="{Binding SavingThrowIntelligenceProficiency}" />
+                                <Entry Text="{Binding SavingThrowIntelligence}" WidthRequest="25" />
+                                <Label Text="Интеллект" FontSize="Small" VerticalOptions="Center" Margin="5,0" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="4" Orientation="Horizontal">
+                                <CheckBox IsChecked="{Binding SavingThrowWisdomProficiency}" />
+                                <Entry Text="{Binding SavingThrowWisdom}" WidthRequest="25" />
+                                <Label Text="Мудрость" FontSize="Small" VerticalOptions="Center" Margin="5,0" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="5" Orientation="Horizontal">
+                                <CheckBox IsChecked="{Binding SavingThrowCharismaProficiency}" />
+                                <Entry Text="{Binding SavingThrowCharisma}" WidthRequest="25" />
+                                <Label Text="Харизма" FontSize="Small" VerticalOptions="Center" Margin="5,0" />
+                            </StackLayout>
+                            <Label Grid.Row="6" Text="СПАСБРОСКИ" FontAttributes="Bold" HorizontalOptions="Center" />
+                        </Grid>
+                    </Frame>
+                    <Frame Grid.Row="3" Grid.Column="1" Margin="5" BorderColor="Black" CornerRadius="5">
+                        <Grid RowDefinitions="*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*">
+                            <StackLayout Grid.Row="0" Orientation="Horizontal">
+                                <CheckBox />
+                                <Entry Text="{Binding Acrobatics}" WidthRequest="25" />
+                                <Label Text="Акробатика (Лов)" FontSize="Micro" VerticalOptions="Center" Margin="5,0" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="1" Orientation="Horizontal">
+                                <CheckBox />
+                                <Entry Text="{Binding Investigation}" WidthRequest="25" />
+                                <Label Text="Анализ (Инт)" FontSize="Micro" VerticalOptions="Center" Margin="5,0" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="2" Orientation="Horizontal">
+                                <CheckBox />
+                                <Entry Text="{Binding Athletics}" WidthRequest="25" />
+                                <Label Text="Атлетика (Сил)" FontSize="Micro" VerticalOptions="Center" Margin="5,0" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="3" Orientation="Horizontal">
+                                <CheckBox />
+                                <Entry Text="{Binding Perception}" WidthRequest="25" />
+                                <Label Text="Восприятие (Муд)" FontSize="Micro" VerticalOptions="Center" Margin="5,0" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="4" Orientation="Horizontal">
+                                <CheckBox />
+                                <Entry Text="{Binding Survival}" WidthRequest="25" />
+                                <Label Text="Выживание (Муд)" FontSize="Micro" VerticalOptions="Center" Margin="5,0" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="5" Orientation="Horizontal">
+                                <CheckBox />
+                                <Entry Text="{Binding Performance}" WidthRequest="25" />
+                                <Label Text="Выступление (Хар)" FontSize="Micro" VerticalOptions="Center" Margin="5,0" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="6" Orientation="Horizontal">
+                                <CheckBox />
+                                <Entry Text="{Binding Intimidation}" WidthRequest="25" />
+                                <Label Text="Запугивание (Хар)" FontSize="Micro" VerticalOptions="Center" Margin="5,0" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="7" Orientation="Horizontal">
+                                <CheckBox />
+                                <Entry Text="{Binding History}" WidthRequest="25" />
+                                <Label Text="История (Инт)" FontSize="Micro" VerticalOptions="Center" Margin="5,0" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="8" Orientation="Horizontal">
+                                <CheckBox />
+                                <Entry Text="{Binding SleightOfHand}" WidthRequest="25" />
+                                <Label Text="Ловкость рук (Лов)" FontSize="Micro" VerticalOptions="Center" Margin="5,0" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="9" Orientation="Horizontal">
+                                <CheckBox />
+                                <Entry Text="{Binding Arcana}" WidthRequest="25" />
+                                <Label Text="Магия (Инт)" FontSize="Micro" VerticalOptions="Center" Margin="5,0" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="10" Orientation="Horizontal">
+                                <CheckBox />
+                                <Entry Text="{Binding Medicine}" WidthRequest="25" />
+                                <Label Text="Медицина (Муд)" FontSize="Micro" VerticalOptions="Center" Margin="5,0" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="11" Orientation="Horizontal">
+                                <CheckBox />
+                                <Entry Text="{Binding Deception}" WidthRequest="25" />
+                                <Label Text="Обман (Хар)" FontSize="Micro" VerticalOptions="Center" Margin="5,0" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="12" Orientation="Horizontal">
+                                <CheckBox />
+                                <Entry Text="{Binding Nature}" WidthRequest="25" />
+                                <Label Text="Природа (Инт)" FontSize="Micro" VerticalOptions="Center" Margin="5,0" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="13" Orientation="Horizontal">
+                                <CheckBox />
+                                <Entry Text="{Binding Insight}" WidthRequest="25" />
+                                <Label Text="Проницательность (Муд)" FontSize="Micro" VerticalOptions="Center"
+                                       Margin="5,0" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="14" Orientation="Horizontal">
+                                <CheckBox />
+                                <Entry Text="{Binding Religion}" WidthRequest="25" />
+                                <Label Text="Религия (Инт)" FontSize="Micro" VerticalOptions="Center" Margin="5,0" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="15" Orientation="Horizontal">
+                                <CheckBox />
+                                <Entry Text="{Binding Stealth}" WidthRequest="25" />
+                                <Label Text="Скрытность (Лов)" FontSize="Micro" VerticalOptions="Center" Margin="5,0" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="16" Orientation="Horizontal">
+                                <CheckBox />
+                                <Entry Text="{Binding Persuasion}" WidthRequest="25" />
+                                <Label Text="Убеждение (Хар)" FontSize="Micro" VerticalOptions="Center" Margin="5,0" />
+                            </StackLayout>
+                            <StackLayout Grid.Row="17" Orientation="Horizontal">
+                                <CheckBox />
+                                <Entry Text="{Binding AnimalHandling}" WidthRequest="25" />
+                                <Label Text="Уход за животными (Муд)" FontSize="Micro" VerticalOptions="Center"
+                                       Margin="5,0" />
+                            </StackLayout>
+                            <Label Grid.Row="18" Text="НАВЫКИ" FontAttributes="Bold" HorizontalOptions="Center" />
+                        </Grid>
+                    </Frame>
+                </Grid>
+            </Grid>
+
+            <!-- Combat Stats -->
+            <Frame Grid.Row="1" Grid.Column="1" Margin="7" CornerRadius="5" BackgroundColor="#eaeaea">
+                <Grid ColumnDefinitions="*,*,*,*" RowDefinitions="*,*,*,*">
+                    <Frame Grid.Row="0" Grid.Column="0" BackgroundColor="White" BorderColor="Black"
+                           CornerRadius="0,0,5,5">
+                        <StackLayout VerticalOptions="Center">
+                            <Entry Text="{Binding ArmorClass}" BackgroundColor="Transparent" />
+                            <Label Text="КЗ" FontSize="Micro" HorizontalOptions="Center" Margin="0,5,0,0" />
+                        </StackLayout>
+                    </Frame>
+                    <Frame Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" MaximumWidthRequest="50"
+                           BackgroundColor="White" BorderColor="Black" CornerRadius="5">
+                        <StackLayout VerticalOptions="Center">
+                            <StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+                                <Label Text="+" />
+                                <Entry Text="{Binding Initiative}" BackgroundColor="Transparent" WidthRequest="25" />
+                            </StackLayout>
+                            <Label Text="Инициатива" FontSize="Micro" HorizontalOptions="Center" Margin="0,5,0,0" />
+                        </StackLayout>
+                    </Frame>
+                    <Frame Grid.Row="0" Grid.Column="3" BackgroundColor="White" BorderColor="Black" CornerRadius="5">
+                        <StackLayout VerticalOptions="Center">
+                            <Entry Text="{Binding Speed}" BackgroundColor="Transparent" />
+                            <Label Text="Скорость" FontSize="Micro" HorizontalOptions="Center" Margin="0,5,0,0" />
+                        </StackLayout>
+                    </Frame>
+                    <Frame Grid.Row="1" Grid.ColumnSpan="4" CornerRadius="5" BackgroundColor="White" Margin="1">
+                        <StackLayout VerticalOptions="Center" Margin="2">
+                            <StackLayout Orientation="Horizontal">
+                                <Label Text="Максимум хитов" FontSize="Micro" Margin="0,0,5,0" />
+                                <Entry Text="{Binding MaxHitPoints}" WidthRequest="100" />
+                            </StackLayout>
+                            <Entry Text="{Binding CurrentHitPoints}" BackgroundColor="Transparent" />
+                            <Label Text="Текущие хиты" FontSize="Small" HorizontalOptions="Center" />
+                        </StackLayout>
+                    </Frame>
+                    <Frame Grid.Row="2" Grid.ColumnSpan="4" CornerRadius="5" BackgroundColor="White" Margin="1">
+                        <StackLayout VerticalOptions="Center" Margin="2">
+                            <Entry Text="{Binding TemporaryHitPoints}" BackgroundColor="Transparent" />
+                            <Label Text="Временные хиты" FontSize="Small" HorizontalOptions="Center" />
+                        </StackLayout>
+                    </Frame>
+                    <Frame Grid.Row="3" Grid.ColumnSpan="2" CornerRadius="5" BackgroundColor="White" Margin="1">
+                        <StackLayout VerticalOptions="Center" Margin="2">
+                            <StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+                                <Label Text="Всего" FontSize="Micro" />
+                                <Entry Text="{Binding HitDice}" FontSize="Micro" WidthRequest="25" />
+                            </StackLayout>
+                            <Entry BackgroundColor="Transparent" />
+                            <Label Text="Кость хитов" FontSize="Micro" HorizontalOptions="Center" />
+                        </StackLayout>
+                    </Frame>
+                    <Frame Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2" CornerRadius="5" BackgroundColor="White"
+                           Margin="1">
+                        <StackLayout VerticalOptions="Center" Margin="2">
+                            <StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+                                <Label Text="Успехи" FontSize="Micro" />
+                                <StackLayout Orientation="Horizontal">
+                                    <CheckBox
+                                        IsChecked="{Binding DeathSaveSuccesses, Converter={StaticResource BoolToIntConverter}, ConverterParameter=1}" />
+                                    <CheckBox
+                                        IsChecked="{Binding DeathSaveSuccesses, Converter={StaticResource BoolToIntConverter}, ConverterParameter=2}" />
+                                    <CheckBox
+                                        IsChecked="{Binding DeathSaveSuccesses, Converter={StaticResource BoolToIntConverter}, ConverterParameter=3}" />
+                                </StackLayout>
+                            </StackLayout>
+                            <StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+                                <Label Text="Провалы" FontSize="Micro" />
+                                <StackLayout Orientation="Horizontal">
+                                    <CheckBox
+                                        IsChecked="{Binding DeathSaveFailures, Converter={StaticResource BoolToIntConverter}, ConverterParameter=1}" />
+                                    <CheckBox
+                                        IsChecked="{Binding DeathSaveFailures, Converter={StaticResource BoolToIntConverter}, ConverterParameter=2}" />
+                                    <CheckBox
+                                        IsChecked="{Binding DeathSaveFailures, Converter={StaticResource BoolToIntConverter}, ConverterParameter=3}" />
+                                </StackLayout>
+                            </StackLayout>
+                            <Label Text="Спасброски от смерти" FontSize="Micro" HorizontalOptions="Center" />
+                        </StackLayout>
+                    </Frame>
+                </Grid>
+            </Frame>
+
+            <!-- Personality -->
+            <Frame Grid.Row="1" Grid.Column="2" BackgroundColor="#eaeaea" Margin="5" CornerRadius="5">
+                <Grid RowDefinitions="*,*,*,*">
+                    <Grid Grid.Row="0" RowDefinitions="5.5*,*">
+                        <Editor Grid.Row="0" Text="{Binding PersonalityTraits}" Margin="4" />
+                        <Label Grid.Row="1" Text="Черты характера" FontSize="Micro" HorizontalOptions="Center" />
+                    </Grid>
+                    <Grid Grid.Row="1" RowDefinitions="5.5*,*">
+                        <Editor Grid.Row="0" Text="{Binding Ideals}" Margin="4" />
+                        <Label Grid.Row="1" Text="Идеалы" FontSize="Micro" HorizontalOptions="Center" />
+                    </Grid>
+                    <Grid Grid.Row="2" RowDefinitions="5.5*,*">
+                        <Editor Grid.Row="0" Text="{Binding Bonds}" Margin="4" />
+                        <Label Grid.Row="1" Text="Привязанности" FontSize="Micro" HorizontalOptions="Center" />
+                    </Grid>
+                    <Grid Grid.Row="3" RowDefinitions="5.5*,*">
+                        <Editor Grid.Row="0" Text="{Binding Flaws}" Margin="4" />
+                        <Label Grid.Row="1" Text="Слабости" FontSize="Micro" HorizontalOptions="Center" />
+                    </Grid>
+                </Grid>
+            </Frame>
+
+            <!-- Attacks and Spells -->
+            <Frame Grid.Row="2" Grid.Column="1" Margin="5" BorderColor="Black" CornerRadius="5">
+                <Grid RowDefinitions="9*,*">
+                    <CollectionView Grid.Row="0" ItemsSource="{Binding Attacks}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="*,*,*">
+                                    <Entry Grid.Column="0" Text="{Binding Name}" Placeholder="Название" />
+                                    <Entry Grid.Column="1" Text="{Binding Bonus}" Placeholder="Бонус" />
+                                    <Entry Grid.Column="2" Text="{Binding Damage}" Placeholder="Урон" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <Label Grid.Row="1" Text="Атаки и заклинания" FontSize="Micro" HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Grid>
+            </Frame>
+
+            <!-- Passive Wisdom and Proficiencies -->
+            <Grid Grid.Row="3" Grid.Column="0" Margin="2">
+                <Grid RowDefinitions="*,10*">
+                    <StackLayout Orientation="Horizontal">
+                        <Entry Text="{Binding PassiveWisdom}" WidthRequest="25" />
+                        <Label Text="Пассивная мудрость (Восприятие)" FontSize="Small" VerticalOptions="Center" />
+                    </StackLayout>
+                    <Frame Grid.Row="1" BorderColor="Black" CornerRadius="5" Margin="3,15,3,3">
+                        <Grid RowDefinitions="10*,*">
+                            <Editor Text="{Binding ProficienciesAndLanguages}" />
+                            <Label Text="Прочие владения и языки" FontSize="Micro" VerticalOptions="Center"
+                                   HorizontalOptions="Center" Grid.Row="1" />
+                        </Grid>
+                    </Frame>
+                </Grid>
+            </Grid>
+
+            <!-- Equipment and Currency -->
+            <Frame Grid.Row="3" Grid.Column="1" BorderColor="Black" CornerRadius="5" Margin="5">
+                <Grid ColumnDefinitions="*,*,*,*,*" RowDefinitions="3*,12*,*">
+                    <StackLayout Grid.Column="0" Grid.Row="0" Margin="2">
+                        <Label Text="ММ" HorizontalOptions="Center" />
+                        <Entry Text="{Binding CopperPieces}" />
+                    </StackLayout>
+                    <StackLayout Grid.Column="1" Grid.Row="0" Margin="2">
+                        <Label Text="СМ" HorizontalOptions="Center" />
+                        <Entry Text="{Binding SilverPieces}" />
+                    </StackLayout>
+                    <StackLayout Grid.Column="2" Grid.Row="0" Margin="2">
+                        <Label Text="ЗМ" HorizontalOptions="Center" />
+                        <Entry Text="{Binding GoldPieces}" />
+                    </StackLayout>
+                    <StackLayout Grid.Column="3" Grid.Row="0" Margin="2">
+                        <Label Text="ЭМ" HorizontalOptions="Center" />
+                        <Entry Text="{Binding ElectrumPieces}" />
+                    </StackLayout>
+                    <StackLayout Grid.Column="4" Grid.Row="0" Margin="2">
+                        <Label Text="ПМ" HorizontalOptions="Center" />
+                        <Entry Text="{Binding PlatinumPieces}" />
+                    </StackLayout>
+                    <Editor Grid.Row="1" Grid.ColumnSpan="5" Text="{Binding Equipment}" />
+                    <Label Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Text="Снаряжение" FontSize="Micro"
+                           HorizontalOptions="Center" VerticalOptions="Center" />
+                </Grid>
+            </Frame>
+
+            <!-- Features and Traits -->
+            <Frame Grid.Row="2" Grid.Column="2" Grid.RowSpan="2" Margin="5" BorderColor="Black" CornerRadius="2">
+                <Grid RowDefinitions="20*,*">
+                    <Editor Text="{Binding FeaturesAndTraits}" AutoSize="TextChanges" />
+                    <Label Text="Умения и способности" FontSize="Micro" HorizontalOptions="Center"
+                           VerticalOptions="Center" Grid.Row="1" />
+                </Grid>
+            </Frame>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

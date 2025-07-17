@@ -12,7 +12,7 @@ public static class ApiHelper
     {
         var client = new HttpClient();
         var request = id == 0 ? $"{model}" : $"{model}/{id}";
-        var response = client.GetAsync($"{_url}/{model}/{(id != 0 ? id : string.Empty)}").Result;
+        var response = client.GetAsync($"{_url}/{model}{(id != 0 ? $"/{id}" : string.Empty)}").Result;
         if (response.StatusCode != HttpStatusCode.OK) return default;
         return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
     }

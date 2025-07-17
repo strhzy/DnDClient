@@ -11,6 +11,7 @@ public partial class MainViewModel : ObservableObject
 
     public MainViewModel()
     {
-        Welcome = "Добро пожаловать, " + SecureStorage.GetAsync("current_user").Result;
+        string user = Preferences.Get("current_user", "default");
+        Welcome = "Добро пожаловать, " + user;
     }
 }
