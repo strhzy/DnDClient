@@ -10,13 +10,9 @@ namespace DnDClient.ViewModels;
 public partial class CharactersViewModel : ObservableObject
 {
     private readonly INavigation _navigation;
-    
-    [ObservableProperty]
-    private ObservableCollection<PlayerCharacter> characters;
-    
-    [ObservableProperty]
-    private PlayerCharacter selectedCharacter;
-    
+
+    [ObservableProperty] private ObservableCollection<PlayerCharacter> characters;
+
     [RelayCommand]
     private async Task TapCard(PlayerCharacter character)
     {
@@ -50,12 +46,32 @@ public partial class CharactersViewModel : ObservableObject
     [RelayCommand]
     private async Task Delete(PlayerCharacter character)
     {
-        if (ApiHelper.Delete<PlayerCharacter>("PlayerCharacter", character.Id))
+        bool confirm = await Application.Current.MainPage.DisplayAlert(
+            "Подтверждение",
+            $"Вы уверены, что хотите удалить персонажа {character.Name}?",
+            "Да",
+            "Нет");
+
+        // Если пользователь выбрал "Да" (confirm == true)
+        if (confirm)
         {
-            await Application.Current.MainPage.DisplayAlert("Инфо", "Персонаж успешно удален", "Закрыть");
-            characters.Remove(character);
+            if (ApiHelper.Delete<PlayerCharacter>("PlayerCharacter", character.Id))
+            {
+                characters.Remove(character);
+                await Application.Current.MainPage.DisplayAlert(
+                    "Инфо",
+                    "Персонаж успешно удален",
+                    "Закрыть");
+            }
+            else
+            {
+                await Application.Current.MainPage.DisplayAlert(
+                    "Ошибка",
+                    "Не удалось удалить персонажа",
+                    "Закрыть");
+            }
         }
-    }   
+    }
 
     public CharactersViewModel(INavigation navigation)
     {

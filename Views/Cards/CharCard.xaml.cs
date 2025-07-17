@@ -13,6 +13,5 @@ public partial class CharCard : ContentView
     public CharCard()
     {
         InitializeComponent();
-        BindingContext = new CharactersViewModel(Navigation);
     }
 }

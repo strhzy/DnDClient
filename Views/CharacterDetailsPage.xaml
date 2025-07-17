@@ -153,8 +153,7 @@
                         </Frame>
                         <Frame Grid.Row="0" Grid.Column="{OnPlatform Default=0, WinUI=1}" Style="{StaticResource FrameStyle}">
                             <StackLayout Orientation="Horizontal">
-                                <CheckBox IsChecked="{Binding Char.Inspiration}" IsVisible="{Binding EditMode}" />
-                                <Label Text="{Binding Char.Inspiration, StringFormat='Вдохновение: {0}'}" Style="{StaticResource ShowLabelStyle}" />
+                                <CheckBox IsChecked="{Binding Char.Inspiration}" />
                                 <Label Text="Вдохновение" Style="{StaticResource LabelStyle}" />
                             </StackLayout>
                         </Frame>

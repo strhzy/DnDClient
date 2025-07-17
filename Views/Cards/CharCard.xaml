@@ -101,9 +101,10 @@
                     FontSize="14"
                     HorizontalOptions="Center" />
             </Grid>
-            <Button Text="Удалить"
+            <Button Grid.Row="5" Grid.ColumnSpan="2" Text="Удалить"
                     BackgroundColor="Red"
-                    Command="{Binding DeleteCommand}"/>
+                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CharactersViewModel}}, Path=DeleteCommand}"
+                    CommandParameter="{Binding .}" />
         </Grid>
     </Frame>
 </ContentView>
