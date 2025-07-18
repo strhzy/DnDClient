@@ -12,17 +12,17 @@ public partial class Attack : ObservableObject
     private Guid id = Guid.NewGuid();
 
     [ObservableProperty]
-    private string name = string.Empty;
+    private string name = "default";
     
     [ObservableProperty]
-    private string description = string.Empty;
+    private string description = "default";
 
     [ObservableProperty]
     private int? attackBonus;
     
     [JsonPropertyName("damage_dice")]
     [ObservableProperty]
-    private string damageDice = string.Empty;
+    private string damageDice = "default";
 
     [ForeignKey("PlayerCharacter")]
     [ObservableProperty]

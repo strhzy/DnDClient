@@ -3,6 +3,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:converters="clr-namespace:DnDClient.Converters"
+             xmlns:vm="clr-namespace:DnDClient.ViewModels"
              x:Class="DnDClient.Views.CharacterDetailsPage">
     <ContentPage.Resources>
         <converters:BoolToIntConverter x:Key="BoolToIntConverter" />
@@ -434,19 +435,24 @@
 
                 <!-- Attacks and Spells -->
                 <Frame Grid.Row="3" Grid.Column="{OnPlatform Default=0, WinUI=1}" Style="{StaticResource FrameStyle}">
-                    <Grid RowDefinitions="*,Auto">
-                        <CollectionView Grid.Row="0" ItemsSource="{Binding Char.Attacks}" IsVisible="{Binding EditMode}">
+                    <Grid RowDefinitions="*,*,Auto" ColumnDefinitions="9*,*">
+                        <Button Grid.Row="0" Grid.Column="1" Command="{Binding AddAttackCommand}" Text="+"></Button>
+                        <CollectionView Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding Char.Attacks}">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
                                     <Grid ColumnDefinitions="{OnPlatform Default='*,*,*', WinUI='*,*,*'}">
-                                        <Entry Grid.Column="0" Text="{Binding Name}" Placeholder="Название" Style="{StaticResource EntryStyle}" />
-                                        <Entry Grid.Column="1" Text="{Binding Bonus}" Placeholder="Бонус" Style="{StaticResource EntryStyle}" />
-                                        <Entry Grid.Column="2" Text="{Binding Damage}" Placeholder="Урон" Style="{StaticResource EntryStyle}" />
+                                        <Entry Grid.Column="0" Text="{Binding Name}" Placeholder="Название" Style="{StaticResource EntryStyle}" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:CharDetailsViewModel}}, Path=EditMode}"/>
+                                        <Entry Grid.Column="1" Text="{Binding AttackBonus}" Placeholder="Бонус" Style="{StaticResource EntryStyle}"  IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:CharDetailsViewModel}}, Path=EditMode}"/>
+                                        <Entry Grid.Column="2" Text="{Binding DamageDice}" Placeholder="Урон" Style="{StaticResource EntryStyle}" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:CharDetailsViewModel}}, Path=EditMode}"/>
+                                        
+                                        <Label Grid.Column="0" Text="{Binding Name}" Style="{StaticResource ShowLabelStyle}" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:CharDetailsViewModel}}, Path=EditMode, Converter={StaticResource BooleanNegationConverter}}"/>
+                                        <Label Grid.Column="1" Text="{Binding AttackBonus}" Style="{StaticResource ShowLabelStyle}" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:CharDetailsViewModel}}, Path=EditMode, Converter={StaticResource BooleanNegationConverter}}"/>
+                                        <Label Grid.Column="2" Text="{Binding DamageDice}" Style="{StaticResource ShowLabelStyle}" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:CharDetailsViewModel}}, Path=EditMode, Converter={StaticResource BooleanNegationConverter}}"/>
                                     </Grid>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
                         </CollectionView>
-                        <Label Grid.Row="1" Text="Атаки и заклинания" Style="{StaticResource LabelStyle}" />
+                        <Label Grid.Row="2" Grid.ColumnSpan="2" Text="Атаки и заклинания" Style="{StaticResource LabelStyle}" />
                     </Grid>
                 </Frame>
 

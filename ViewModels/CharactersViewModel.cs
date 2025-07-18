@@ -51,8 +51,7 @@ public partial class CharactersViewModel : ObservableObject
             $"Вы уверены, что хотите удалить персонажа {character.Name}?",
             "Да",
             "Нет");
-
-        // Если пользователь выбрал "Да" (confirm == true)
+        
         if (confirm)
         {
             if (ApiHelper.Delete<PlayerCharacter>("PlayerCharacter", character.Id))

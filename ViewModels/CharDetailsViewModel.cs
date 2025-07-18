@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using DnDClient.Models;
 using DnDClient.Services;
 
@@ -25,8 +26,21 @@ public partial class CharDetailsViewModel : ObservableObject
         }
         else if (!value)
         {
-            ApiHelper.Put<PlayerCharacter>(Serdeser.Serialize(_char), "PlayerCharacter", _char.Id);
+            bool success = ApiHelper.Put<PlayerCharacter>(Serdeser.Serialize(_char), "PlayerCharacter", _char.Id);
+            foreach (var attack in _char.Attacks)
+            {
+                ApiHelper.Put<Attack>(Serdeser.Serialize(attack), "Attack", attack.Id);
+            }
         }
+    }
+
+    [RelayCommand]
+    async Task AddAttack()
+    {
+        var attack = new Attack();
+        attack.PlayerCharacterId = _char.Id;
+        _char.Attacks.Add(attack);
+        ApiHelper.Post<Attack>(Serdeser.Serialize(attack), "Attack");
     }
 
     public CharDetailsViewModel(INavigation navigation, PlayerCharacter character)
