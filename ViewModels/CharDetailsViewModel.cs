@@ -43,6 +43,12 @@ public partial class CharDetailsViewModel : ObservableObject
         ApiHelper.Post<Attack>(Serdeser.Serialize(attack), "Attack");
     }
 
+    [RelayCommand]
+    async Task Export()
+    {
+        
+    }
+
     public CharDetailsViewModel(INavigation navigation, PlayerCharacter character)
     {
         _navigation = navigation;

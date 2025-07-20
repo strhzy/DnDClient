@@ -72,6 +72,17 @@ public partial class CharactersViewModel : ObservableObject
         }
     }
 
+    [RelayCommand]
+    public async Task Export(PlayerCharacter character)
+    {
+        var filePath = await ApiHelper.DownloadFileAsync("PlayerCharacter", $"{character.Name}.pdf", character.Id);
+        if (filePath != null)
+        {
+            // Файл успешно сохранён, можно что-то с ним сделать, например, открыть
+            await Launcher.OpenAsync(new OpenFileRequest { File = new ReadOnlyFile(filePath) });
+        }
+    }
+
     public CharactersViewModel(INavigation navigation)
     {
         _navigation = navigation;
