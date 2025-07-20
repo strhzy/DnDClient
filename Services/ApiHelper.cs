@@ -54,50 +54,77 @@ public static class ApiHelper
     {
         try
         {
-            using var client = new HttpClient();
-            var path = id == Guid.Empty ? $"{model}" : $"{model}/{id}/pdf";
-            var response = await client.GetAsync($"{_url}/{path}", HttpCompletionOption.ResponseHeadersRead);
+            string filePath = null;
 
-            if (response.StatusCode != HttpStatusCode.OK)
+            await Task.Run(async () =>
             {
-                await Application.Current.MainPage.DisplayAlert("Ошибка", "Не удалось скачать файл!", "OK");
-                return null;
-            }
+                using var client = new HttpClient();
+                var path = id == Guid.Empty ? $"{model}" : $"{model}/{id}/pdf";
+                var response = await client.GetAsync($"{_url}/{path}", HttpCompletionOption.ResponseHeadersRead);
 
-            await using var stream = await response.Content.ReadAsStreamAsync();
+                if (!response.IsSuccessStatusCode)
+                {
+                    await ShowAlert("Ошибка", "Не удалось скачать файл!");
+                    return; // Исправлено: просто return без значения
+                }
 
-            string filePath = Path.Combine(FileSystem.CacheDirectory, fileName);
+                await using var stream = await response.Content.ReadAsStreamAsync();
 
 #if ANDROID
-            var status = await Permissions.RequestAsync<Permissions.StorageWrite>();
-            if (status != PermissionStatus.Granted)
-            {
-                await Application.Current.MainPage.DisplayAlert("Ошибка", "Нет доступа к хранилищу!", "OK");
-                return null;
-            }
+                var status = await MainThread.InvokeOnMainThreadAsync(() =>
+                    Permissions.RequestAsync<Permissions.StorageWrite>()
+                );
 
-            filePath = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath,
-                Android.OS.Environment.DirectoryDownloads, fileName);
-    #elif WINDOWS
+                if (status != PermissionStatus.Granted)
+                {
+                    await ShowAlert("Ошибка", "Нет доступа к хранилищу!");
+                    return; // Исправлено: просто return без значения
+                }
+
+                filePath = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath,
+                    Android.OS.Environment.DirectoryDownloads, fileName);
+                using var fileStream = File.Create(filePath);
+                await stream.CopyToAsync(fileStream);
+#elif WINDOWS
             var folder = Windows.Storage.KnownFolders.DocumentsLibrary;
             var file = await folder.CreateFileAsync(fileName, Windows.Storage.CreationCollisionOption.ReplaceExisting);
             filePath = file.Path;
-            await using var fileStream = await file.OpenStreamForWriteAsync();
-            await stream.CopyToAsync(fileStream);
-            return filePath;
+            await using (var fileStream = await file.OpenStreamForWriteAsync())
+            {
+                await stream.CopyToAsync(fileStream);
+            }
 #else
-            // iOS или другие: используем кэш
-            await using var fileStream = File.Create(filePath);
-            await stream.CopyToAsync(fileStream);
+            // Для iOS и других платформ
+            filePath = Path.Combine(FileSystem.CacheDirectory, fileName);
+            await using (var fileStream = File.Create(filePath))
+            {
+                await stream.CopyToAsync(fileStream);
+            }
 #endif
+            });
 
-            await Application.Current.MainPage.DisplayAlert("Успех", $"Файл сохранён: {filePath}", "OK");
+            if (filePath != null)
+            {
+                await ShowAlert("Успех", $"Файл сохранён: {filePath}");
+            }
+
             return filePath;
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert("Ошибка", $"Что-то пошло не так: {ex.Message}", "OK");
+            await ShowAlert("Ошибка", $"Ошибка: {ex.Message}");
             return null;
         }
+    }
+
+    private static async Task ShowAlert(string title, string message)
+    {
+        await MainThread.InvokeOnMainThreadAsync(async () =>
+        {
+            if (Application.Current?.MainPage != null)
+            {
+                await Application.Current.MainPage.DisplayAlert(title, message, "OK");
+            }
+        });
     }
 }

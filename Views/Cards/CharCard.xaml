@@ -27,7 +27,7 @@
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <!-- Имя персонажа -->
@@ -76,32 +76,89 @@
                 FontSize="18"
                 FontAttributes="Bold"
                 Margin="0,10,0,5" />
-            <Grid
-                Grid.Row="4"
-                Grid.Column="0"
-                Grid.ColumnSpan="2">
+            <Grid Grid.Row="4"
+                  Grid.Column="0"
+                  Grid.ColumnSpan="2"
+                  HorizontalOptions="CenterAndExpand" ColumnSpacing="20" RowSpacing="20">
+
+                <!-- Правильное определение RowDefinitions с OnPlatform -->
+                <Grid.RowDefinitions>
+                    <OnPlatform x:TypeArguments="RowDefinitionCollection">
+                        <On Platform="iOS, Android">
+                            <RowDefinitionCollection>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                            </RowDefinitionCollection>
+                        </On>
+                        <On Platform="WinUI, MacCatalyst">
+                            <RowDefinitionCollection>
+                                <RowDefinition Height="*" />
+                            </RowDefinitionCollection>
+                        </On>
+                    </OnPlatform>
+                </Grid.RowDefinitions>
+
+                <!-- Правильное определение ColumnDefinitions с OnPlatform -->
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
+                    <OnPlatform x:TypeArguments="ColumnDefinitionCollection">
+                        <On Platform="iOS, Android">
+                            <ColumnDefinitionCollection>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </ColumnDefinitionCollection>
+                        </On>
+                        <On Platform="WinUI, MacCatalyst">
+                            <ColumnDefinitionCollection>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </ColumnDefinitionCollection>
+                        </On>
+                    </OnPlatform>
                 </Grid.ColumnDefinitions>
-                <Label
-                    Grid.Column="0"
-                    Text="{Binding Strength, StringFormat='STR: {0}'}"
-                    FontSize="14"
-                    HorizontalOptions="Center" />
-                <Label
-                    Grid.Column="1"
-                    Text="{Binding Dexterity, StringFormat='DEX: {0}'}"
-                    FontSize="14"
-                    HorizontalOptions="Center" />
-                <Label
-                    Grid.Column="2"
-                    Text="{Binding Constitution, StringFormat='CON: {0}'}"
-                    FontSize="14"
-                    HorizontalOptions="Center" />
+
+                <!-- Элементы с упрощенным назначением строк/колонок -->
+                <Label Text="{Binding Strength, StringFormat='Сила: {0}'}"
+                       FontSize="14"
+                       HorizontalOptions="Center"
+                       Grid.Row="{OnPlatform iOS=0, Android=0, WinUI=0, MacCatalyst=0}"
+                       Grid.Column="{OnPlatform iOS=0, Android=0, WinUI=0, MacCatalyst=0}" />
+
+                <Label Text="{Binding Dexterity, StringFormat='Ловкость: {0}'}"
+                       FontSize="14"
+                       HorizontalOptions="Center"
+                       Grid.Row="{OnPlatform iOS=0, Android=0, WinUI=0, MacCatalyst=0}"
+                       Grid.Column="{OnPlatform iOS=1, Android=1, WinUI=1, MacCatalyst=1}" />
+
+                <Label Text="{Binding Constitution, StringFormat='Телосложение: {0}'}"
+                       FontSize="14"
+                       HorizontalOptions="Center"
+                       Grid.Row="{OnPlatform iOS=1, Android=1, WinUI=0, MacCatalyst=0}"
+                       Grid.Column="{OnPlatform iOS=0, Android=0, WinUI=2, MacCatalyst=2}" />
+
+                <Label Text="{Binding Intelligence, StringFormat='Интеллект: {0}'}"
+                       FontSize="14"
+                       HorizontalOptions="Center"
+                       Grid.Row="{OnPlatform iOS=1, Android=1, WinUI=0, MacCatalyst=0}"
+                       Grid.Column="{OnPlatform iOS=1, Android=1, WinUI=3, MacCatalyst=3}" />
+
+                <Label Text="{Binding Wisdom, StringFormat='Мудрость: {0}'}"
+                       FontSize="14"
+                       HorizontalOptions="Center"
+                       Grid.Row="{OnPlatform iOS=2, Android=2, WinUI=0, MacCatalyst=0}"
+                       Grid.Column="{OnPlatform iOS=0, Android=0, WinUI=4, MacCatalyst=4}" />
+
+                <Label Text="{Binding Charisma, StringFormat='Харизма: {0}'}"
+                       FontSize="14"
+                       HorizontalOptions="Center"
+                       Grid.Row="{OnPlatform iOS=2, Android=2, WinUI=0, MacCatalyst=0}"
+                       Grid.Column="{OnPlatform iOS=1, Android=1, WinUI=5, MacCatalyst=5}" />
             </Grid>
-            <StackLayout Orientation="Horizontal" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Padding="0,0">
+            <StackLayout Orientation="Horizontal" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Padding="0,0" Margin="0,25" HorizontalOptions="Center" Spacing="20">
                 <Button Text="Удалить"
                         BackgroundColor="Red"
                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CharactersViewModel}}, Path=DeleteCommand}"

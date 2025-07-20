@@ -75,11 +75,18 @@ public partial class CharactersViewModel : ObservableObject
     [RelayCommand]
     public async Task Export(PlayerCharacter character)
     {
-        var filePath = await ApiHelper.DownloadFileAsync("PlayerCharacter", $"{character.Name}.pdf", character.Id);
-        if (filePath != null)
+        try
         {
-            // Файл успешно сохранён, можно что-то с ним сделать, например, открыть
-            await Launcher.OpenAsync(new OpenFileRequest { File = new ReadOnlyFile(filePath) });
+            var filePath = await ApiHelper.DownloadFileAsync("PlayerCharacter", $"{character.Name}.pdf", character.Id);
+            if (filePath != null)
+            {
+                // Файл успешно сохранён, можно что-то с ним сделать, например, открыть
+                await Launcher.OpenAsync(new OpenFileRequest { File = new ReadOnlyFile(filePath) });
+            }
+        }
+        catch (Exception ex)
+        {
+            await Application.Current.MainPage.DisplayAlert("Ошибка", ex.ToString(), "OK");
         }
     }
 
