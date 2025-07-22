@@ -2,8 +2,116 @@
 
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:DnDClient.Views.Cards"
+             xmlns:conv="clr-namespace:DnDClient.Converters"
              x:Class="DnDClient.Views.CampaignPage">
+    <ContentPage.Resources>
+        <conv:BooleanNegationConverter x:Key="BooleanNegationConverter"/>
+    </ContentPage.Resources>
     <ContentPage.Content>
-        
+        <ScrollView>
+            <Grid>
+                <!-- Режим мастера -->
+                <StackLayout IsVisible="{Binding MasterMode}">
+                    <Label Text="Мастер: управление кампанией" FontAttributes="Bold" FontSize="20"/>
+                    <Entry Text="{Binding Campaign.Name}" Placeholder="Название кампании"/>
+                    <Editor Text="{Binding Campaign.Description}" Placeholder="Описание кампании"/>
+                    <Button Text="Сохранить изменения"/>
+                    <!-- Список игроков -->
+                    <Label Text="Игроки кампании:" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <CollectionView ItemsSource="{Binding Players}" Margin="0,0,0,10">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <views:CharCard />
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <!-- Добавление игрока -->
+                    <Label Text="Добавить персонажа:" FontAttributes="Bold"/>
+                    <Picker ItemsSource="{Binding AvailableCharacters}" ItemDisplayBinding="{Binding Name}" SelectedItem="{Binding SelectedCharacterToAdd, Mode=TwoWay}"/>
+                    <Button Text="Добавить в кампанию" Command="{Binding AddPlayerToCampaignAsync}"/>
+                    <!-- Добавление нового сюжета -->
+                    <Frame Margin="5" Padding="10" BorderColor="DarkGreen">
+                        <StackLayout>
+                            <Label Text="Добавить сюжет" FontAttributes="Bold"/>
+                            <Entry Placeholder="Название" Text="{Binding NewStoryName, Mode=TwoWay}"/>
+                            <Editor Placeholder="Описание" Text="{Binding NewStoryDescription, Mode=TwoWay}"/>
+                            <Button Text="Добавить" Command="{Binding AddStoryCommand}"/>
+                        </StackLayout>
+                    </Frame>
+                    <!-- Список сюжетов -->
+                    <Label Text="Сюжеты кампании:" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <CollectionView ItemsSource="{Binding Stories}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame Margin="5" Padding="10" BorderColor="Gray">
+                                    <StackLayout>
+                                        <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                                        <Label Text="{Binding Description}" FontSize="12"/>
+                                    </StackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <!-- Список боёв -->
+                    <Label Text="Бои кампании:" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <CollectionView ItemsSource="{Binding Combats}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame Margin="5" Padding="10" BorderColor="DarkRed">
+                                    <StackLayout>
+                                        <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                                        <Label Text="Раунд: {Binding CurrentRound}" FontSize="12"/>
+                                    </StackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </StackLayout>
+                <!-- Обычный режим -->
+                <StackLayout IsVisible="{Binding MasterMode, Converter={StaticResource BooleanNegationConverter}}">
+                    <Label Text="Кампания" FontAttributes="Bold" FontSize="20"/>
+                    <Label Text="{Binding Campaign.Name}" FontSize="18"/>
+                    <Label Text="{Binding Campaign.Description}" FontSize="14"/>
+                    <!-- Список игроков -->
+                    <Label Text="Игроки:" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <CollectionView ItemsSource="{Binding Players}" Margin="0,0,0,10">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <views:CharCard />
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <!-- Список сюжетов -->
+                    <Label Text="Сюжеты:" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <CollectionView ItemsSource="{Binding Stories}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame Margin="5" Padding="10" BorderColor="Gray">
+                                    <StackLayout>
+                                        <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                                        <Label Text="{Binding Description}" FontSize="12"/>
+                                    </StackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <!-- Список боёв -->
+                    <Label Text="Бои:" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <CollectionView ItemsSource="{Binding Combats}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame Margin="5" Padding="10" BorderColor="DarkRed">
+                                    <StackLayout>
+                                        <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                                        <Label Text="Раунд: {Binding CurrentRound}" FontSize="12"/>
+                                    </StackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </StackLayout>
+            </Grid>
+        </ScrollView>
     </ContentPage.Content>
 </ContentPage>

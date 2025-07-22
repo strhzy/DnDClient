@@ -23,6 +23,11 @@
         Title="Персонажи"
         ContentTemplate="{DataTemplate views:CharactersPage}"
         Route="CharactersPage" />
+    
+    <ShellContent
+        Title="Кампании"
+        ContentTemplate="{DataTemplate views:CampaignListPage}"
+        Route="CampaignPage" />
 
     <MenuItem
         Text="Выход"

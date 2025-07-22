@@ -94,6 +94,6 @@ public partial class CharactersViewModel : ObservableObject
     {
         _navigation = navigation;
         string userid = Preferences.Get("current_user_id", "default");
-        Characters = ApiHelper.Get<ObservableCollection<PlayerCharacter>>("PlayerCharacter?query=");
+        Characters = ApiHelper.Get<ObservableCollection<PlayerCharacter>>("PlayerCharacter?query=" + userid);
     }
 }

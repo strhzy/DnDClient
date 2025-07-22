@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:DnDClient.ViewModels"
+             x:Class="DnDClient.Views.Cards.CampCard">
+    <Frame
+        CornerRadius="10"
+        Margin="10"
+        Padding="15"
+        BorderColor="Purple"
+        Background="{AppThemeBinding Light=LightGray, Dark=#454545}"
+        HasShadow="True">
+        <Frame.GestureRecognizers>
+            <TapGestureRecognizer
+                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CampaignListViewModel}}, Path=TapCardCommand}"
+                CommandParameter="{Binding .}" />
+        </Frame.GestureRecognizers>
+        <Grid RowDefinitions="*,*" ColumnDefinitions="*,*">
+            <Label Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding Name, StringFormat='Название: {0}'}" FontSize="25" HorizontalTextAlignment="Center"></Label>
+            <Label Grid.Row="1" Grid.Column="0" Text="{Binding Master.Username, StringFormat='Мастер: {0}'}"></Label>
+            <Label Grid.Row="1" Grid.Column="1" Text="{Binding PlayerCharacters.Count, StringFormat='Игроков: {0}'}"></Label>
+        </Grid>
+    </Frame>
+</ContentView>

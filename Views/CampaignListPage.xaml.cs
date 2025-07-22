@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DnDClient.Models;
 using DnDClient.ViewModels;
 
 namespace DnDClient.Views;
 
-public partial class CampaignPage : ContentPage
+public partial class CampaignListPage : ContentPage
 {
-    public CampaignPage(Campaign campaign)
+    public CampaignListPage()
     {
         InitializeComponent();
-        BindingContext = new CampaignViewModel(campaign);
+        BindingContext = new CampaignListViewModel(Navigation);
     }
 }

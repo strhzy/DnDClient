@@ -28,9 +28,11 @@ public partial class AuthViewModel : ObservableObject
             
             if (response != null && !string.IsNullOrEmpty(response.Token))
             {
+                Preferences.Remove("current_user");
+                Preferences.Remove("current_user_id");
                 await SecureStorage.SetAsync("auth_token", response.Token);
                 Preferences.Set("current_user", Email);
-                Preferences.Set("current_user_id", ApiHelper.Get<List<User>>("User?email="+Email).FirstOrDefault().Id.ToString());
+                Preferences.Set("current_user_id", ApiHelper.Get<List<User>>("User?query=" + Email).FirstOrDefault().Id.ToString());
                 Email = string.Empty;
                 Password = string.Empty;
                 var shell = (AppShell)Shell.Current;

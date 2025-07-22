@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -16,6 +17,9 @@ public partial class Campaign : ObservableObject
 
     [ObservableProperty]
     private List<StoryElement> plotItems = new();
+
+    [ObservableProperty] 
+    private ObservableCollection<PlayerCharacter> playerCharacters = new();
 
     [ObservableProperty]
     private List<Combat> combats = new();
