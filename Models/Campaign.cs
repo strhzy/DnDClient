@@ -16,13 +16,13 @@ public partial class Campaign : ObservableObject
     private string name = string.Empty;
 
     [ObservableProperty]
-    private List<StoryElement> plotItems = new();
+    private ObservableCollection<StoryElement> plotItems = new();
 
     [ObservableProperty] 
     private ObservableCollection<PlayerCharacter> playerCharacters = new();
 
     [ObservableProperty]
-    private List<Combat> combats = new();
+    private ObservableCollection<Combat> combats = new();
 
     [ForeignKey("User")]
     [ObservableProperty]

@@ -2,6 +2,21 @@
 
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="using:DnDClient.ViewModels"
              x:Class="DnDClient.Views.Cards.CombatCard">
-    
+    <Frame Padding="10" Margin="5" BorderColor="Gray" CornerRadius="10">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="Medium"/>
+            <Label Text="{Binding CurrentRound}" FontSize="Small" Grid.Row="1"/>
+            <Button Text="Удалить" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CampaignViewModel}}, Path=DeleteCombatCommand}" CommandParameter="{Binding .}" BackgroundColor="DarkRed" TextColor="White" Grid.Row="2" Margin="0,5,0,0"/>
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding OpenCombatCommand}"/>
+            </Grid.GestureRecognizers>
+        </Grid>
+    </Frame>
 </ContentView>

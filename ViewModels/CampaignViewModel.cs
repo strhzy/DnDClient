@@ -21,12 +21,16 @@ public partial class CampaignViewModel : ObservableObject
 
     [ObservableProperty] private string newStoryName;
     [ObservableProperty] private string newStoryDescription;
+    [ObservableProperty] private string newCombatName;
 
-    public CampaignViewModel(Campaign _campaign)
+    public CampaignViewModel(Campaign? _campaign)
     {
-        campaign = _campaign;
-        masterMode = Preferences.Get("current_user_id", "") == campaign.MasterId.ToString();
-        LoadData();
+        if (_campaign != null)
+        {
+            campaign = _campaign;
+            masterMode = Preferences.Get("current_user_id", "") == campaign.MasterId.ToString();
+            LoadData();
+        }
     }
 
     public void LoadData()
@@ -35,7 +39,8 @@ public partial class CampaignViewModel : ObservableObject
         var allChars = ApiHelper.Get<List<PlayerCharacter>>("PlayerCharacter") ?? new List<PlayerCharacter>();
         AvailableCharacters = new ObservableCollection<PlayerCharacter>(allChars.Except(Players, new PlayerCharacterIdComparer()));
         Stories = new ObservableCollection<StoryElement>(campaign.PlotItems);
-        //Combats = new ObservableCollection<Combat>(ApiHelper.Get<List<Combat>>("campaigns/combats", Campaign.Id) ?? new List<Combat>());
+        Combats = ApiHelper.Get<ObservableCollection<Combat>>("Combat?campaignId="+Campaign.Id.ToString());
+        Campaign.Combats = Combats;
     }
 
     public void AddPlayerToCampaign()
@@ -60,11 +65,57 @@ public partial class CampaignViewModel : ObservableObject
                 CampaignId = Campaign.Id
             };
             var json = JsonConvert.SerializeObject(story);
-            ApiHelper.Post<string>(json, "StoryElement");
+            ApiHelper.Post<StoryElement>(json, "StoryElement");
             NewStoryName = string.Empty;
             NewStoryDescription = string.Empty;
             LoadData();
         }
+    }
+    
+    [RelayCommand]
+    public void AddCombat()
+    {
+        var combat = new Combat
+        {
+            Name = NewCombatName,
+            CampaignId = Campaign.Id,
+            Participants = new List<CombatParticipant>()
+        };
+        var json = JsonConvert.SerializeObject(combat);
+        ApiHelper.Post<Combat>(json, "Combat");
+        LoadData();
+    }
+
+    [RelayCommand]
+    public void DeleteStory(StoryElement story)
+    {
+        if (story != null)
+        {
+            ApiHelper.Delete<StoryElement>($"StoryElement", story.Id);
+            LoadData();
+        }
+    }
+
+    [RelayCommand]
+    public void DeleteCombat(Combat combat)
+    {
+        if (combat != null)
+        {
+            ApiHelper.Delete<Combat>("Combat", combat.Id);
+            LoadData();
+        }
+    }
+
+    [RelayCommand]
+    public async Task OpenCombatAsync(Combat combat)
+    {
+        if (combat == null) return;
+        var navParam = new Dictionary<string, object>
+        {
+            { "Combat", combat },
+            { "MasterMode", masterMode }
+        };
+        await Shell.Current.GoToAsync(nameof(DnDClient.Views.CombatPage), navParam);
     }
 
     private class PlayerCharacterIdComparer : IEqualityComparer<PlayerCharacter>

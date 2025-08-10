@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DnDClient.Views.CombatPage">
+    <ContentPage.Content>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <!-- Информация о текущем ходе -->
+            <StackLayout Grid.Row="0" Padding="10">
+                <Label Text="Раунд:" FontAttributes="Bold"/>
+                <Label Text="{Binding Combat.CurrentRound}"/>
+                <Label Text="Текущий ходящий:" FontAttributes="Bold"/>
+                <Label Text="{Binding Combat.CurrentParticipant.Name}"/>
+            </StackLayout>
+            <!-- Основная область: логи и участники -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <!-- Логи боя -->
+                <StackLayout Grid.Column="0" Padding="10">
+                    <Label Text="Логи боя" FontAttributes="Bold"/>
+                    <CollectionView ItemsSource="{Binding CombatLogs}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame Margin="2" Padding="5" BorderColor="Gray">
+                                    <Label Text="{Binding Message}"/>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </StackLayout>
+                <!-- Участники боя -->
+                <StackLayout Grid.Column="1" Padding="10">
+                    <Label Text="Участники" FontAttributes="Bold"/>
+                    <CollectionView ItemsSource="{Binding Combat.Participants}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame Margin="2" Padding="5" BorderColor="Gray">
+                                    <StackLayout>
+                                        <Label Text="{Binding Name}"/>
+                                        <Label Text="HP: {Binding CurrentHitPoints}" FontSize="10"/>
+                                        <Label Text="{Binding Type}" FontSize="10"/>
+                                    </StackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </StackLayout>
+            </Grid>
+            <!-- UI для игрока -->
+            <StackLayout Grid.Row="2" Padding="10" IsVisible="{Binding IsPlayerTurn}">
+                <Label Text="Ваш ход" FontAttributes="Bold"/>
+                <Picker Title="Тип действия" ItemsSource="{Binding ActionTypes}" SelectedItem="{Binding SelectedActionType}"/>
+                <Picker Title="Цель" ItemsSource="{Binding Combat.Participants}" ItemDisplayBinding="{Binding Name}" SelectedItem="{Binding SelectedTarget}"/>
+                <Picker Title="Атака" ItemsSource="{Binding Combat.CurrentParticipant.Attacks}" ItemDisplayBinding="{Binding Name}" SelectedItem="{Binding SelectedAttack}" IsVisible="{Binding SelectedActionType, Converter={StaticResource AttackTypeVisibilityConverter}}"/>
+                <Entry Placeholder="Урон/лечение" Keyboard="Numeric" Text="{Binding AttackDamage}"/>
+                <Button Text="Отправить ход" Command="{Binding SendPlayerActionCommand}"/>
+            </StackLayout>
+            <!-- UI для мастера -->
+            <StackLayout Grid.Row="2" Padding="10" IsVisible="{Binding MasterMode}">
+                <Label Text="Подтвердить ход игрока" FontAttributes="Bold"/>
+                <Button Text="Подтвердить ход" Command="{Binding ConfirmActionCommand}"/>
+            </StackLayout>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>
