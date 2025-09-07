@@ -1,0 +1,330 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TabbedPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            xmlns:local="using:DnDClient.Views"
+            xmlns:viewModels="using:DnDClient.ViewModels"
+            x:Class="DnDClient.Views.CombatParticipantsPage"
+            Title="Управление участниками боя"
+            xmlns:android="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;assembly=Microsoft.Maui.Controls"
+            android:TabbedPage.ToolbarPlacement="Bottom">
+
+    <TabbedPage.Resources>
+        <local:HitPointsConverter x:Key="HitPointsConverter" />
+    </TabbedPage.Resources>
+
+    <!-- Вкладка для игроков -->
+    <ContentPage Title="Игроки" IconImageSource="user_icon.png">
+        <ScrollView>
+            <StackLayout Padding="20" Spacing="15">
+                <!-- Добавление игроков -->
+                <Frame>
+                    <StackLayout Spacing="10">
+                        <Label Text="Добавить игрока" FontAttributes="Bold" FontSize="16"/>
+                        
+                        <CollectionView ItemsSource="{Binding AvailableCharacters}"
+                                       HeightRequest="200"
+                                       EmptyView="Нет доступных персонажей">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Frame Padding="10" Margin="2" BackgroundColor="#2F4F4F">
+                                        <StackLayout>
+                                            <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                                            <StackLayout Orientation="Horizontal" Spacing="10">
+                                                <Label Text="{Binding Type, StringFormat='Тип: Игрок'}" 
+                                                       FontSize="12"/>
+                                                <Label Text="{Binding CurrentHitPoints, StringFormat='HP: {0}/{1}'}" 
+                                                       FontSize="12"/>
+                                                <Label Text="{Binding ArmorClass, StringFormat='AC: {0}'}" 
+                                                       FontSize="12"/>
+                                            </StackLayout>
+                                            <Button Text="➕ Добавить в бой" 
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:CombatParticipantsPage}}, 
+                                                             Path=BindingContext.AddParticipantCommand}"
+                                                    CommandParameter="{Binding}"
+                                                    BackgroundColor="#4CAF50"
+                                                    TextColor="White"
+                                                    Margin="0,5,0,0"/>
+                                        </StackLayout>
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Список игроков в бою -->
+                <Label Text="Игроки в бою:" FontAttributes="Bold" FontSize="16"/>
+                
+                <CollectionView ItemsSource="{Binding Participants}"
+                               EmptyView="Нет игроков в бою">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame Padding="15" Margin="2" BackgroundColor="#2F4F4F">
+                                <StackLayout>
+                                    <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                                    <Label Text="{Binding Type, StringFormat='Тип: {0}'}" FontSize="12"/>
+                                    <Label Text="{Binding CurrentHitPoints, StringFormat='HP: {0}/{1}', Converter={StaticResource HitPointsConverter}}" 
+                                           FontSize="12"/>
+                                    <Label Text="{Binding ArmorClass, StringFormat='AC: {0}'}" 
+                                           FontSize="12"/>
+                                    <Label Text="{Binding IsActive, StringFormat='Активен: {0}'}" 
+                                           FontSize="12"/>
+                                    
+                                    <StackLayout Orientation="Horizontal" Spacing="5"
+                                                 Margin="0,10,0,0">
+                                        <Button Text="✏️" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type local:CombatParticipantsPage}}, 
+                                                         Path=BindingContext.UpdateParticipantCommand}"
+                                                CommandParameter="{Binding}"
+                                                BackgroundColor="#FFC107"
+                                                WidthRequest="40"/>
+                                        
+                                        <Button Text="🗑️" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type local:CombatParticipantsPage}}, 
+                                                         Path=BindingContext.RemoveParticipantCommand}"
+                                                CommandParameter="{Binding}"
+                                                BackgroundColor="#F44336"
+                                                TextColor="White"
+                                                WidthRequest="40"/>
+                                    </StackLayout>
+                                </StackLayout>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage>
+
+    <!-- Вкладка для NPC -->
+    <ContentPage Title="NPC" IconImageSource="npc_icon.png">
+        <ScrollView>
+            <StackLayout Padding="20" Spacing="15">
+                <Button Text="Создать NPC"
+                        Command="{Binding OpenNPCCreationCommand}"
+                        BackgroundColor="#2196F3"
+                        TextColor="White"
+                        Margin="0,0,0,10"/>
+                <!-- Добавление NPC -->
+                <Frame>
+                    <StackLayout Spacing="10">
+                        <Label Text="Добавить NPC" FontAttributes="Bold" FontSize="16"/>
+                        
+                        <CollectionView ItemsSource="{Binding AvailableNPCs}"
+                                       HeightRequest="200"
+                                       EmptyView="Нет доступных NPC">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Frame Padding="10" Margin="2" BackgroundColor="#2F4F4F">
+                                        <StackLayout>
+                                            <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                                            <StackLayout Orientation="Horizontal" Spacing="10">
+                                                <Label Text="Тип: NPC" FontSize="12"/>
+                                                <Label Text="{Binding HitPoints, StringFormat='HP: {0}'}" 
+                                                       FontSize="12"/>
+                                                <Label Text="{Binding ArmorClass, StringFormat='AC: {0}'}" 
+                                                       FontSize="12"/>
+                                            </StackLayout>
+                                            <Button Text="➕ Добавить в бой" 
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:CombatParticipantsPage}}, 
+                                                             Path=BindingContext.AddParticipantCommand}"
+                                                    CommandParameter="{Binding}"
+                                                    BackgroundColor="#4CAF50"
+                                                    TextColor="White"
+                                                    Margin="0,5,0,0"/>
+                                        </StackLayout>
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Список NPC в бою -->
+                <Label Text="NPC в бою:" FontAttributes="Bold" FontSize="16"/>
+                
+                <CollectionView ItemsSource="{Binding Participants}"
+                               EmptyView="Нет NPC в бою">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame Padding="15" Margin="2" BackgroundColor="#2F4F4F">
+                                <StackLayout>
+                                    <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                                    <Label Text="{Binding Type, StringFormat='Тип: {0}'}" FontSize="12"/>
+                                    <Label Text="{Binding CurrentHitPoints, StringFormat='HP: {0}/{1}', Converter={StaticResource HitPointsConverter}}" 
+                                           FontSize="12"/>
+                                    <Label Text="{Binding ArmorClass, StringFormat='AC: {0}'}" 
+                                           FontSize="12"/>
+                                    <Label Text="{Binding IsActive, StringFormat='Активен: {0}'}" 
+                                           FontSize="12"/>
+                                    
+                                    <StackLayout Orientation="Horizontal" Spacing="5"
+                                                 Margin="0,10,0,0">
+                                        <Button Text="✏️" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type local:CombatParticipantsPage}}, 
+                                                         Path=BindingContext.UpdateParticipantCommand}"
+                                                CommandParameter="{Binding}"
+                                                BackgroundColor="#FFC107"
+                                                WidthRequest="40"/>
+                                        
+                                        <Button Text="🗑️" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type local:CombatParticipantsPage}}, 
+                                                         Path=BindingContext.RemoveParticipantCommand}"
+                                                CommandParameter="{Binding}"
+                                                BackgroundColor="#F44336"
+                                                TextColor="White"
+                                                WidthRequest="40"/>
+                                    </StackLayout>
+                                </StackLayout>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage>
+
+    <!-- Вкладка для врагов -->
+    <ContentPage Title="Враги" IconImageSource="monster_icon.png">
+        <ScrollView>
+            <StackLayout Padding="20" Spacing="15">
+                <Button Text="Создать врага"
+                        Command="{Binding OpenEnemyCreationCommand}"
+                        BackgroundColor="#E91E63"
+                        TextColor="White"
+                        Margin="0,0,0,10"/>
+                <!-- Добавление врагов -->
+                <Frame>
+                    <StackLayout Spacing="10">
+                        <Label Text="Добавить врага" FontAttributes="Bold" FontSize="16"/>
+                        
+                        <CollectionView ItemsSource="{Binding AvailableEnemies}"
+                                       HeightRequest="200"
+                                       EmptyView="Нет доступных врагов">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Frame Padding="10" Margin="2" BackgroundColor="#2F4F4F">
+                                        <StackLayout>
+                                            <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                                            <StackLayout Orientation="Horizontal" Spacing="10">
+                                                <Label Text="Тип: Враг" FontSize="12"/>
+                                                <Label Text="{Binding HitPoints, StringFormat='HP: {0}'}" 
+                                                       FontSize="12"/>
+                                                <Label Text="{Binding ArmorClass, StringFormat='AC: {0}'}" 
+                                                       FontSize="12"/>
+                                            </StackLayout>
+                                            <Button Text="➕ Добавить в бой" 
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:CombatParticipantsPage}}, 
+                                                             Path=BindingContext.AddParticipantCommand}"
+                                                    CommandParameter="{Binding}"
+                                                    BackgroundColor="#4CAF50"
+                                                    TextColor="White"
+                                                    Margin="0,5,0,0"/>
+                                        </StackLayout>
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Список врагов в бою -->
+                <Label Text="Враги в бою:" FontAttributes="Bold" FontSize="16"/>
+                
+                <CollectionView ItemsSource="{Binding Participants}"
+                               EmptyView="Нет врагов в бою">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame Padding="15" Margin="2" BackgroundColor="#2F4F4F">
+                                <StackLayout>
+                                    <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                                    <Label Text="{Binding Type, StringFormat='Тип: {0}'}" FontSize="12"/>
+                                    <Label Text="{Binding CurrentHitPoints, StringFormat='HP: {0}/{1}', Converter={StaticResource HitPointsConverter}}" 
+                                           FontSize="12"/>
+                                    <Label Text="{Binding ArmorClass, StringFormat='AC: {0}'}" 
+                                           FontSize="12"/>
+                                    <Label Text="{Binding IsActive, StringFormat='Активен: {0}'}" 
+                                           FontSize="12"/>
+                                    
+                                    <StackLayout Orientation="Horizontal" Spacing="5"
+                                                 Margin="0,10,0,0">
+                                        <Button Text="✏️" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type local:CombatParticipantsPage}}, 
+                                                         Path=BindingContext.UpdateParticipantCommand}"
+                                                CommandParameter="{Binding}"
+                                                BackgroundColor="#FFC107"
+                                                WidthRequest="40"/>
+                                        
+                                        <Button Text="🗑️" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type local:CombatParticipantsPage}}, 
+                                                         Path=BindingContext.RemoveParticipantCommand}"
+                                                CommandParameter="{Binding}"
+                                                BackgroundColor="#F44336"
+                                                TextColor="White"
+                                                WidthRequest="40"/>
+                                    </StackLayout>
+                                </StackLayout>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage>
+
+    <!-- Вкладка общего обзора -->
+    <ContentPage Title="Все участники" IconImageSource="overview_icon.png">
+        <ScrollView>
+            <StackLayout Padding="20" Spacing="15">
+                <Label Text="Все участники боя:" FontAttributes="Bold" FontSize="16"/>
+                
+                <CollectionView ItemsSource="{Binding Participants}"
+                               EmptyView="Нет участников в бою">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame Padding="15" Margin="2" BackgroundColor="#2F4F4F">
+                                <StackLayout>
+                                    <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                                    <Label Text="{Binding Type, StringFormat='Тип: {0}'}" FontSize="12"/>
+                                    <Label Text="{Binding CurrentHitPoints, StringFormat='HP: {0}/{1}', Converter={StaticResource HitPointsConverter}}" 
+                                           FontSize="12"/>
+                                    <Label Text="{Binding ArmorClass, StringFormat='AC: {0}'}" 
+                                           FontSize="12"/>
+                                    <Label Text="{Binding IsActive, StringFormat='Активе��: {0}'}" 
+                                           FontSize="12"/>
+                                    
+                                    <StackLayout Orientation="Horizontal" Spacing="5"
+                                                 Margin="0,10,0,0">
+                                        <Button Text="✏️" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type local:CombatParticipantsPage}}, 
+                                                         Path=BindingContext.UpdateParticipantCommand}"
+                                                CommandParameter="{Binding}"
+                                                BackgroundColor="#FFC107"
+                                                WidthRequest="40"/>
+                                        
+                                        <Button Text="🗑️" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type local:CombatParticipantsPage}}, 
+                                                         Path=BindingContext.RemoveParticipantCommand}"
+                                                CommandParameter="{Binding}"
+                                                BackgroundColor="#F44336"
+                                                TextColor="White"
+                                                WidthRequest="40"/>
+                                    </StackLayout>
+                                </StackLayout>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage>
+</TabbedPage>

@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TabbedPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="using:DnDClient.Views"
+             x:Class="DnDClient.Views.EntityManagementPage"
+             Title="Управление сущностями">
+    
+        <!-- Вкладка NPC -->
+        <ContentPage Title="NPC">
+            <ScrollView>
+                <StackLayout Padding="20" Spacing="15">
+                    
+                    <!-- Создание нового NPC -->
+                    <Frame>
+                        <StackLayout Spacing="10">
+                            <Label Text="Создать нового NPC" FontAttributes="Bold"/>
+                            
+                            <Entry Placeholder="Имя" Text="{Binding NewNPC.Name}"/>
+                            <Entry Placeholder="Раса" Text="{Binding NewNPC.Race}"/>
+                            <Entry Placeholder="Профессия" Text="{Binding NewNPC.Occupation}"/>
+                            <Entry Placeholder="HP" Text="{Binding NewNPC.HitPoints}" Keyboard="Numeric"/>
+                            <Entry Placeholder="AC" Text="{Binding NewNPC.ArmorClass}" Keyboard="Numeric"/>
+                            
+                            <Button Text="Создать" Command="{Binding CreateNPCCommand}"/>
+                        </StackLayout>
+                    </Frame>
+
+                    <!-- Список NPC -->
+                    <Label Text="Список NPC:" FontAttributes="Bold"/>
+                    
+                    <CollectionView ItemsSource="{Binding NPCs}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame Padding="15" Margin="5" BackgroundColor="LightGray">
+                                    <Frame.GestureRecognizers>
+                                        <TapGestureRecognizer 
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type local:EntityManagementPage}}, 
+                                                     Path=BindingContext.AddNpcToCampaignCommand}"
+                                            CommandParameter="{Binding}"/>
+                                    </Frame.GestureRecognizers>
+                                    
+                                    <StackLayout>
+                                        <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                                        <Label Text="{Binding Race, StringFormat='Раса: {0}'}"/>
+                                        <Label Text="{Binding Occupation, StringFormat='Профессия: {0}'}"/>
+                                        <Label Text="{Binding HitPoints, StringFormat='HP: {0}'}"/>
+                                        <Label Text="{Binding ArmorClass, StringFormat='AC: {0}'}"/>
+                                        
+                                        <StackLayout Orientation="Horizontal" Spacing="10">
+                                            <Button Text="✏️" Command="{Binding Source={RelativeSource AncestorType={x:Type local:EntityManagementPage}}, 
+                                                     Path=BindingContext.EditNPCCommand}"
+                                                    CommandParameter="{Binding}"
+                                                    BackgroundColor="#FFC107"/>
+                                            <Button Text="🗑️" Command="{Binding Source={RelativeSource AncestorType={x:Type local:EntityManagementPage}}, 
+                                                     Path=BindingContext.DeleteNPCCommand}"
+                                                    CommandParameter="{Binding}"
+                                                    BackgroundColor="#F44336"
+                                                    TextColor="White"/>
+                                        </StackLayout>
+                                        
+                                        <Button Text="➕ Добавить в кампанию" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type local:EntityManagementPage}}, 
+                                                         Path=BindingContext.AddNpcToCampaignCommand}"
+                                                CommandParameter="{Binding}"
+                                                BackgroundColor="#4CAF50"
+                                                TextColor="White"
+                                                Margin="0,10,0,0"/>
+                                    </StackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                </StackLayout>
+            </ScrollView>
+        </ContentPage>
+
+        <!-- Вкладка Enemy -->
+        <ContentPage Title="Враги">
+            <ScrollView>
+                <StackLayout Padding="20" Spacing="15">
+                    
+                    <!-- Создание нового Enemy -->
+                    <Frame>
+                        <StackLayout Spacing="10">
+                            <Label Text="Создать нового врага" FontAttributes="Bold"/>
+                            
+                            <Entry Placeholder="Имя" Text="{Binding NewEnemy.Name}"/>
+                            <Entry Placeholder="Тип" Text="{Binding NewEnemy.Type}"/>
+                            <Entry Placeholder="HP" Text="{Binding NewEnemy.HitPoints}" Keyboard="Numeric"/>
+                            <Entry Placeholder="AC" Text="{Binding NewEnemy.ArmorClass}" Keyboard="Numeric"/>
+                            <Entry Placeholder="CR" Text="{Binding NewEnemy.ChallengeRating}"/>
+                            
+                            <Button Text="Создать" Command="{Binding CreateEnemyCommand}"/>
+                        </StackLayout>
+                    </Frame>
+
+                    <!-- Список Enemy -->
+                    <Label Text="Список врагов:" FontAttributes="Bold"/>
+                    
+                    <CollectionView ItemsSource="{Binding Enemies}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame Padding="15" Margin="5" BackgroundColor="LightGray">
+                                    <Frame.GestureRecognizers>
+                                        <TapGestureRecognizer 
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type local:EntityManagementPage}}, 
+                                                     Path=BindingContext.AddEnemyToCampaignCommand}"
+                                            CommandParameter="{Binding}"/>
+                                    </Frame.GestureRecognizers>
+                                    
+                                    <StackLayout>
+                                        <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                                        <Label Text="{Binding Type, StringFormat='Тип: {0}'}"/>
+                                        <Label Text="{Binding HitPoints, StringFormat='HP: {0}'}"/>
+                                        <Label Text="{Binding ArmorClass, StringFormat='AC: {0}'}"/>
+                                        <Label Text="{Binding ChallengeRating, StringFormat='CR: {0}'}"/>
+                                        
+                                        <StackLayout Orientation="Horizontal" Spacing="10">
+                                            <Button Text="✏️" Command="{Binding Source={RelativeSource AncestorType={x:Type local:EntityManagementPage}}, 
+                                                     Path=BindingContext.EditEnemyCommand}"
+                                                    CommandParameter="{Binding}"
+                                                    BackgroundColor="#FFC107"/>
+                                            <Button Text="🗑️" Command="{Binding Source={RelativeSource AncestorType={x:Type local:EntityManagementPage}}, 
+                                                     Path=BindingContext.DeleteEnemyCommand}"
+                                                    CommandParameter="{Binding}"
+                                                    BackgroundColor="#F44336"
+                                                    TextColor="White"/>
+                                        </StackLayout>
+                                        
+                                        <Button Text="➕ Добавить в кампанию" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type local:EntityManagementPage}}, 
+                                                         Path=BindingContext.AddEnemyToCampaignCommand}"
+                                                CommandParameter="{Binding}"
+                                                BackgroundColor="#4CAF50"
+                                                TextColor="White"
+                                                Margin="0,10,0,0"/>
+                                    </StackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                </StackLayout>
+            </ScrollView>
+        </ContentPage>
+</TabbedPage>

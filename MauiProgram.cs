@@ -19,8 +19,17 @@ public static class MauiProgram
         
         builder.Logging.AddConsole();
         builder.Services.AddTransient<CharactersPage>();
-        builder.Services.AddTransient<CharactersViewModel>();
         builder.Services.AddTransient<CharacterDetailsPage>();
+        
+        builder.Services.AddTransient<MainViewModel>();
+        builder.Services.AddTransient<AuthViewModel>();
+        builder.Services.AddTransient<CampaignListViewModel>();
+        builder.Services.AddTransient<CampaignViewModel>();
+        builder.Services.AddTransient<CharactersViewModel>();
+        builder.Services.AddTransient<CharDetailsViewModel>();
+        builder.Services.AddTransient<CombatViewModel>();
+        builder.Services.AddTransient<CombatParticipantsViewModel>();
+        builder.Services.AddTransient<EntityManagementViewModel>();
         
 #if DEBUG
         builder.Logging.AddDebug();

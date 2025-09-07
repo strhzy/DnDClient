@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DnDClient.ViewModels;
-
-namespace DnDClient.Views.Cards;
+﻿namespace DnDClient.Views.Cards;
 
 public partial class CombatCard : ContentView
 {
@@ -13,4 +6,17 @@ public partial class CombatCard : ContentView
     {
         InitializeComponent();
     }
+    
+    // public static readonly BindableProperty OpenCombatCommandProperty =
+    //     BindableProperty.Create(
+    //         nameof(OpenCombatCommand),
+    //         typeof(ICommand),
+    //         typeof(CombatCard),
+    //         null);
+    //
+    // public ICommand OpenCombatCommand
+    // {
+    //     get => (ICommand)GetValue(OpenCombatCommandProperty);
+    //     set => SetValue(OpenCombatCommandProperty, value);
+    // }
 }

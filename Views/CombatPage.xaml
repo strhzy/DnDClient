@@ -3,6 +3,9 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="DnDClient.Views.CombatPage">
+    <ContentPage.BindingContext>
+        <vm:CombatViewModel xmlns:vm="clr-namespace:DnDClient.ViewModels"/>
+    </ContentPage.BindingContext>
     <ContentPage.Content>
         <Grid>
             <Grid.RowDefinitions>
@@ -45,7 +48,7 @@
                                 <Frame Margin="2" Padding="5" BorderColor="Gray">
                                     <StackLayout>
                                         <Label Text="{Binding Name}"/>
-                                        <Label Text="HP: {Binding CurrentHitPoints}" FontSize="10"/>
+                                        <Label Text="{Binding CurrentHitPoints}" FontSize="10"/>
                                         <Label Text="{Binding Type}" FontSize="10"/>
                                     </StackLayout>
                                 </Frame>
@@ -59,7 +62,7 @@
                 <Label Text="Ваш ход" FontAttributes="Bold"/>
                 <Picker Title="Тип действия" ItemsSource="{Binding ActionTypes}" SelectedItem="{Binding SelectedActionType}"/>
                 <Picker Title="Цель" ItemsSource="{Binding Combat.Participants}" ItemDisplayBinding="{Binding Name}" SelectedItem="{Binding SelectedTarget}"/>
-                <Picker Title="Атака" ItemsSource="{Binding Combat.CurrentParticipant.Attacks}" ItemDisplayBinding="{Binding Name}" SelectedItem="{Binding SelectedAttack}" IsVisible="{Binding SelectedActionType, Converter={StaticResource AttackTypeVisibilityConverter}}"/>
+                <Picker Title="Атака" ItemsSource="{Binding Combat.CurrentParticipant.Attacks}" ItemDisplayBinding="{Binding Name}" SelectedItem="{Binding SelectedAttack}" IsVisible="{Binding SelectedActionType}"/>
                 <Entry Placeholder="Урон/лечение" Keyboard="Numeric" Text="{Binding AttackDamage}"/>
                 <Button Text="Отправить ход" Command="{Binding SendPlayerActionCommand}"/>
             </StackLayout>
@@ -67,6 +70,24 @@
             <StackLayout Grid.Row="2" Padding="10" IsVisible="{Binding MasterMode}">
                 <Label Text="Подтвердить ход игрока" FontAttributes="Bold"/>
                 <Button Text="Подтвердить ход" Command="{Binding ConfirmActionCommand}"/>
+            </StackLayout>
+            <StackLayout Grid.Row="2" Padding="10" IsVisible="{Binding MasterMode}">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <!-- Подтверждение хода -->
+                    <StackLayout Grid.Column="0">
+                        <Label Text="Подтвердить ход игрока" FontAttributes="Bold"/>
+                        <Button Text="Подтвердить ход" Command="{Binding ConfirmActionCommand}"/>
+                    </StackLayout>
+        
+                    <!-- Быстрое управление -->
+                    <StackLayout Grid.Column="1">
+                        <Label Text="Управление боем" FontAttributes="Bold"/>
+                        <Button Text="👥 Управление участниками" 
+                                Command="{Binding ManageParticipantsCommand}"
+                                BackgroundColor="#FF9800"
+                                TextColor="White"/>
+                    </StackLayout>
+                </Grid>
             </StackLayout>
         </Grid>
     </ContentPage.Content>

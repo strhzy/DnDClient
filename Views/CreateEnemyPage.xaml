@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:DnDClient.ViewModels"
+             x:Class="DnDClient.Views.CreateEnemyPage">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="16">
+            <Label Text="Создать врага" FontSize="24" HorizontalOptions="Center" />
+            <Entry Placeholder="Имя" Text="{Binding Name}" />
+            <Entry Placeholder="Slug (уникальный идентификатор)" Text="{Binding Slug}" />
+            <Entry Placeholder="Размер" Text="{Binding Size}" />
+            <Entry Placeholder="Тип" Text="{Binding Type}" />
+            <Entry Placeholder="Подтип" Text="{Binding Subtype}" />
+            <Entry Placeholder="Группа" Text="{Binding Group}" />
+            <Entry Placeholder="Мировоззрение" Text="{Binding Alignment}" />
+            <Entry Placeholder="Класс брони" Keyboard="Numeric" Text="{Binding ArmorClass}" />
+            <Entry Placeholder="Описание брони" Text="{Binding ArmorDescription}" />
+            <Entry Placeholder="Здоровье" Keyboard="Numeric" Text="{Binding HitPoints}" />
+            <Entry Placeholder="Кубики хитов" Text="{Binding HitDice}" />
+            <Entry Placeholder="Скорость (строка)" Text="{Binding Speed}" />
+            <Entry Placeholder="Сила" Keyboard="Numeric" Text="{Binding Strength}" />
+            <Entry Placeholder="Ловкость" Keyboard="Numeric" Text="{Binding Dexterity}" />
+            <Entry Placeholder="Телосложение" Keyboard="Numeric" Text="{Binding Constitution}" />
+            <Entry Placeholder="Интеллект" Keyboard="Numeric" Text="{Binding Intelligence}" />
+            <Entry Placeholder="Мудрость" Keyboard="Numeric" Text="{Binding Wisdom}" />
+            <Entry Placeholder="Харизма" Keyboard="Numeric" Text="{Binding Charisma}" />
+            <Entry Placeholder="Восприятие" Keyboard="Numeric" Text="{Binding Perception}" />
+            <Entry Placeholder="Навыки (строка)" Text="{Binding Skills}" />
+            <Entry Placeholder="Уязвимости к урону" Text="{Binding DamageVulnerabilities}" />
+            <Entry Placeholder="Сопротивления урону" Text="{Binding DamageResistances}" />
+            <Entry Placeholder="Иммунитет к урону" Text="{Binding DamageImmunities}" />
+            <Entry Placeholder="Иммунитет к состояниям" Text="{Binding ConditionImmunities}" />
+            <Entry Placeholder="Чувства" Text="{Binding Senses}" />
+            <Entry Placeholder="Языки" Text="{Binding Languages}" />
+            <Entry Placeholder="Опасность (CR)" Text="{Binding ChallengeRating}" />
+            <Entry Placeholder="Значение CR (число)" Keyboard="Numeric" Text="{Binding ChallengeRatingValue}" />
+            <Editor Placeholder="Описание" HeightRequest="100" Text="{Binding Description}" />
+            <Button Text="Создать" Command="{Binding CreateEnemyAsyncCommand}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

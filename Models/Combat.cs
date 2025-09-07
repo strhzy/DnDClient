@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -15,13 +16,13 @@ public partial class Combat : ObservableObject
     private string name = string.Empty;
 
     [ObservableProperty]
-    private List<CombatParticipant> participants = new();
+    private ObservableCollection<CombatParticipant> participants = new();
 
     [ObservableProperty]
     private int currentRound = 1;
 
     [ObservableProperty]
-    private int currentTurnIndex;
+    private int currentTurnIndex = 0;
 
     [ForeignKey("Campaign")]
     [ObservableProperty]

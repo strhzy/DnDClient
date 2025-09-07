@@ -10,12 +10,14 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="Medium"/>
-            <Label Text="{Binding CurrentRound}" FontSize="Small" Grid.Row="1"/>
-            <Button Text="Удалить" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CampaignViewModel}}, Path=DeleteCombatCommand}" CommandParameter="{Binding .}" BackgroundColor="DarkRed" TextColor="White" Grid.Row="2" Margin="0,5,0,0"/>
+            <Label Text="{Binding CombatCurrentRound}" FontSize="Small" Grid.Row="1"/>
+            <Button Text="Открыть бой" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CampaignViewModel}}, Path=OpenCombatCommand}" CommandParameter="{Binding .}" BackgroundColor="DarkSlateGray" TextColor="White" Grid.Row="2"></Button>
+            <Button Text="Удалить" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CampaignViewModel}}, Path=DeleteCombatCommand}" CommandParameter="{Binding .}" BackgroundColor="DarkRed" TextColor="White" Grid.Row="3" Margin="0,5,0,0"/>
             <Grid.GestureRecognizers>
-                <TapGestureRecognizer Command="{Binding OpenCombatCommand}"/>
+                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CampaignViewModel}}, Path=OpenCombatCommand}" CommandParameter="{Binding .}"/>
             </Grid.GestureRecognizers>
         </Grid>
     </Frame>

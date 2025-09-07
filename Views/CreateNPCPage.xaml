@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:DnDClient.ViewModels"
+             x:Class="DnDClient.Views.CreateNPCPage">
+    <ContentPage.Content>
+        <ScrollView>
+            <VerticalStackLayout Padding="20" Spacing="16">
+                <Label Text="Создать NPC" FontSize="24" HorizontalOptions="Center" />
+                <Entry Placeholder="Имя" Text="{Binding Name}" />
+                <Entry Placeholder="Роль" Text="{Binding Role}" />
+                <Entry Placeholder="Раса" Text="{Binding Race}" />
+                <Entry Placeholder="Профессия" Text="{Binding Occupation}" />
+                <Entry Placeholder="Здоровье" Keyboard="Numeric" Text="{Binding HitPoints}" />
+                <Entry Placeholder="Класс брони" Keyboard="Numeric" Text="{Binding ArmorClass}" />
+                <Editor Placeholder="Черты характера" HeightRequest="60" Text="{Binding PersonalityTraits}" />
+                <Editor Placeholder="Идеалы" HeightRequest="60" Text="{Binding Ideals}" />
+                <Editor Placeholder="Узы" HeightRequest="60" Text="{Binding Bonds}" />
+                <Editor Placeholder="Изъяны" HeightRequest="60" Text="{Binding Flaws}" />
+                <Button Text="Создать" Command="{Binding CreateNPCAsyncCommand}" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>
