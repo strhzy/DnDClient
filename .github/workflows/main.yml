@@ -22,7 +22,7 @@ jobs:
 
     - name: Build APK
       run: |
-        dotnet publish -f net8.0-android -c Release -p:AndroidApplicationType=Apk /p:PublishReadyToRun=false /p:PublishAot=true DnDClient/DnDClient.csproj --self-contained true -o ./publish/android
+        dotnet publish -f net8.0-android -c Release -p:AndroidApplicationType=Apk /p:PublishReadyToRun=false /p:PublishAot=true DnDClient.csproj --self-contained true -o ./publish/android
       # Здесь DnDClient - имя твоего проекта; скорректируй путь
 
     - name: Upload APK artifact
@@ -47,7 +47,7 @@ jobs:
 
     - name: Build MSI/MSIX
       run: |
-        dotnet publish -f net8.0-windows10.0.19041.0 -c Release DnDClient/DnDClient.csproj --self-contained true -o ./publish/windows /p:AppxPackage=true /p:AppxBundle=Always /p:AppxPackageDir=.
+        dotnet publish -f net8.0-windows10.0.19041.0 -c Release DnDClient.csproj --self-contained true -o ./publish/windows /p:AppxPackage=true /p:AppxBundle=Always /p:AppxPackageDir=.
       # Это генерирует MSIX; для чистого MSI добавь WiX в проект и используй: dotnet msbuild /t:Publish /p:Configuration=Release /p:Platform=x64
       # Если проект настроен на MSI через .wixproj, измени на: dotnet build DnDClientInstaller.wixproj -c Release
 
