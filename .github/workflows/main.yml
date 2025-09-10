@@ -22,7 +22,7 @@ jobs:
 
     - name: Build APK
       run: |
-        dotnet publish -f net8.0-android -c Release -r android-arm64 -p:AndroidApplicationType=Apk /p:PublishReadyToRun=false /p:PublishAot=true DnDClient/DnDClient.csproj --self-contained true -o ./publish/android
+        dotnet publish -f net8.0-android -c Release -r android-arm64 -p:AndroidApplicationType=Apk /p:PublishReadyToRun=false /p:PublishAot=true DnDClient.csproj --self-contained true -o ./publish/android
       # Здесь DnDClient - имя твоего проекта; скорректируй путь
 
     - name: Upload APK artifact
