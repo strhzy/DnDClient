@@ -18,7 +18,7 @@ jobs:
         dotnet-version: '8.0.x'  # Или '9.0.x' для .NET 9
 
     - name: Install Android workloads
-      run: dotnet workload install android --source https://api.nuget.org/v3/index.json
+      run: dotnet workload restore
 
     - name: Build APK
       run: |
@@ -43,7 +43,7 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Install Windows workloads
-      run: dotnet workload install windows --source https://api.nuget.org/v3/index.json
+      run: dotnet workload restore
 
     - name: Build MSI/MSIX
       run: |
