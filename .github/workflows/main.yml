@@ -51,17 +51,19 @@ jobs:
       # Это генерирует MSIX; для чистого MSI добавь WiX в проект и используй: dotnet msbuild /t:Publish /p:Configuration=Release /p:Platform=x64
       # Если проект настроен на MSI через .wixproj, измени на: dotnet build DnDClientInstaller.wixproj -c Release
 
-    - name: Rename to MSI (if needed)
+    - name: Move and rename MSIX
       run: |
-        # Если сгенерирован MSIX, можно конвертировать или переименовать; для простоты предполагаем MSI готов
-        if (Test-Path "./publish/windows/*.msix") { Rename-Item "./publish/windows/*.msix" "DnDClient.msi" }
-        # Или используй инструмент для конвертации MSIX в MSI, если требуется (добавь шаг с Chocolatey: choco install wixtoolset)
+        if (Test-Path "./publish/windows/DnDClient_1.0.0.1_Test/*.msix") { Move-Item "./publish/windows/DnDClient_1.0.0.1_Test/*.msix" "./publish/windows/DnDClient.msi" }
+        if (Test-Path "./publish/windows/DnDClient_1.0.0.1_Test/*.msixbundle") { Move-Item "./publish/windows/DnDClient_1.0.0.1_Test/*.msixbundle" "./publish/windows/DnDClient.msixbundle" }
 
-    - name: Upload MSI artifact
+    - name: Upload MSI/MSIX artifact
       uses: actions/upload-artifact@v4
       with:
         name: maui-msi
-        path: ./publish/windows/*.msix  # Или *.msix, если не конвертируешь
+        path: |
+          ./publish/windows/*.msi
+          ./publish/windows/*.msix
+          ./publish/windows/*.msixbundle
 
   create-release:
     runs-on: ubuntu-latest
