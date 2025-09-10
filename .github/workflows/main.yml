@@ -61,7 +61,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: maui-msi
-        path: ./publish/windows/*.msi  # Или *.msix, если не конвертируешь
+        path: ./publish/windows/*.msix  # Или *.msix, если не конвертируешь
 
   create-release:
     runs-on: ubuntu-latest
