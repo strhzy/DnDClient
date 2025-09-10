@@ -3,9 +3,6 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="DnDClient.Views.CombatPage">
-    <ContentPage.BindingContext>
-        <vm:CombatViewModel xmlns:vm="clr-namespace:DnDClient.ViewModels"/>
-    </ContentPage.BindingContext>
     <ContentPage.Content>
         <Grid>
             <Grid.RowDefinitions>
