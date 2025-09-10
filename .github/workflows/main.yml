@@ -1,0 +1,107 @@
+name: Build and Release MAUI App
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Триггер на теги вида v1.0.0, v2.1.0 и т.д.
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'  # Или '9.0.x' для .NET 9
+
+    - name: Install Android workloads
+      run: dotnet workload install android --source https://api.nuget.org/v3/index.json
+
+    - name: Build APK
+      run: |
+        dotnet publish -f net8.0-android -c Release -p:AndroidApplicationType=Apk /p:PublishReadyToRun=false /p:PublishAot=true MyMauiApp/MyMauiApp.csproj --self-contained true -o ./publish/android
+      # Здесь MyMauiApp - имя твоего проекта; скорректируй путь
+
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: maui-apk
+        path: ./publish/android/*.apk
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Install Windows workloads
+      run: dotnet workload install windows --source https://api.nuget.org/v3/index.json
+
+    - name: Build MSI/MSIX
+      run: |
+        dotnet publish -f net8.0-windows10.0.19041.0 -c Release MyMauiApp/MyMauiApp.csproj --self-contained true -o ./publish/windows /p:AppxPackage=true /p:AppxBundle=Always /p:AppxPackageDir=.
+      # Это генерирует MSIX; для чистого MSI добавь WiX в проект и используй: dotnet msbuild /t:Publish /p:Configuration=Release /p:Platform=x64
+      # Если проект настроен на MSI через .wixproj, измени на: dotnet build MyMauiAppInstaller.wixproj -c Release
+
+    - name: Rename to MSI (if needed)
+      run: |
+        # Если сгенерирован MSIX, можно конвертировать или переименовать; для простоты предполагаем MSI готов
+        if (Test-Path "./publish/windows/*.msix") { Rename-Item "./publish/windows/*.msix" "MyMauiApp.msi" }
+        # Или используй инструмент для конвертации MSIX в MSI, если требуется (добавь шаг с Chocolatey: choco install wixtoolset)
+
+    - name: Upload MSI artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: maui-msi
+        path: ./publish/windows/*.msi  # Или *.msix, если не конвертируешь
+
+  create-release:
+    runs-on: ubuntu-latest
+    needs: [build-android, build-windows]  # Ждём завершения сборок
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Для чтения тегов
+
+    - name: Download APK
+      uses: actions/download-artifact@v4
+      with:
+        name: maui-apk
+        path: ./artifacts/
+
+    - name: Download MSI
+      uses: actions/download-artifact@v4
+      with:
+        name: maui-msi
+        path: ./artifacts/
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          ./artifacts/*.apk
+          ./artifacts/*.msi
+        tag_name: ${{ github.ref_name }}
+        name: Release ${{ github.ref_name }}
+        body: |
+          ## Новые фичи
+          - Автоматическая сборка MAUI приложения.
+          
+          ## Артефакты
+          - APK для Android
+          - MSI для Windows
+          
+          Собрано на GitHub Actions.
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Автоматически доступен
