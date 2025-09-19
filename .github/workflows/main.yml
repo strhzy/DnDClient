@@ -47,9 +47,9 @@ jobs:
     - name: Request Free Code-Signing Certificate from Actalis
       run: |
         # Запрос бесплатного сертификата через Actalis
-        $email = "alexeydm2@gmail.com"  # Укажите ваш email
-        $csrFile = "$(Build.SourcesDirectory)\request.csr"
-        $keyFile = "$(Build.SourcesDirectory)\private.key"
+        $email = "your-email@example.com"  # Укажите ваш email
+        $csrFile = "$env:GITHUB_WORKSPACE\request.csr"
+        $keyFile = "$env:GITHUB_WORKSPACE\private.key"
 
         # Создаем закрытый ключ и CSR
         openssl req -new -newkey rsa:2048 -nodes -keyout $keyFile -out $csrFile -subj "/C=US/ST=State/L=City/O=YourCompany/CN=YourCompany"
@@ -68,7 +68,7 @@ jobs:
         # Импортируем сертификат из GitHub Secrets
         $certPassword = "password123" | ConvertTo-SecureString -Force -AsPlainText
         $certBase64 = "${{ secrets.BASE64_CERTIFICATE }}"
-        $certPath = "$(Build.SourcesDirectory)\MyCert.pfx"
+        $certPath = "$env:GITHUB_WORKSPACE\MyCert.pfx"
 
         # Декодируем BASE64 в PFX-файл
         [System.Convert]::FromBase64String($certBase64) | Set-Content -Path $certPath -Encoding Byte
