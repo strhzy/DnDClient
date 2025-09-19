@@ -56,7 +56,7 @@ jobs:
           -o ./publish/windows DnDClient.csproj
 
     - name: Install WiX Toolset
-      run: choco install wixtoolset --version=3.11.2 -y
+      run: choco install wixtoolset --version=3.11.2 -y --force
 
     - name: Create WiX installer definition
       run: |
