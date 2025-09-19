@@ -71,7 +71,8 @@ jobs:
         $certPath = "$env:GITHUB_WORKSPACE\MyCert.pfx"
 
         # Декодируем BASE64 в PFX-файл
-        [System.Convert]::FromBase64String($certBase64) | Set-Content -Path $certPath -Encoding Byte
+        $certBytes = [System.Convert]::FromBase64String($certBase64)
+        [System.IO.File]::WriteAllBytes($certPath, $certBytes)
 
         # Импортируем сертификат в хранилище
         Import-PfxCertificate -FilePath $certPath -CertStoreLocation Cert:\LocalMachine\My -Password $certPassword
