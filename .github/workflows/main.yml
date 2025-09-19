@@ -1,4 +1,4 @@
-name: Build and Release MAUI App
+name: Build and Release MAUI App with Free Code-Signing Certificate
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '8.0.x'  # Или '9.0.x' для .NET 9
+        dotnet-version: '8.0.x'
 
     - name: Install Android workloads
       run: dotnet workload restore
@@ -23,7 +23,6 @@ jobs:
     - name: Build APK
       run: |
         dotnet publish -f net8.0-android -c Release -r android-arm64 -p:AndroidApplicationType=Apk /p:PublishReadyToRun=false DnDClient.csproj --self-contained true -o ./publish/android
-      # Здесь DnDClient - имя твоего проекта; скорректируй путь
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
@@ -45,19 +44,41 @@ jobs:
     - name: Install Windows workloads
       run: dotnet workload restore
 
-    - name: Create signing certificate
+    - name: Request Free Code-Signing Certificate from Actalis
       run: |
-        # Создаем самоподписанный сертификат
+        # Запрос бесплатного сертификата через Actalis
+        $email = "alexeydm2@gmail.com"  # Укажите ваш email
+        $csrFile = "$(Build.SourcesDirectory)\request.csr"
+        $keyFile = "$(Build.SourcesDirectory)\private.key"
+
+        # Создаем закрытый ключ и CSR
+        openssl req -new -newkey rsa:2048 -nodes -keyout $keyFile -out $csrFile -subj "/C=US/ST=State/L=City/O=YourCompany/CN=YourCompany"
+
+        # Отправляем CSR в Actalis
+        Invoke-WebRequest -Uri "https://www.actalis.com/free-code-signing-certificate" -Method POST -Body @{
+          email = $email
+          csr = Get-Content $csrFile -Raw
+        } -ContentType "application/x-www-form-urlencoded"
+
+        # После одобрения Actalis вышлет сертификат на указанный email
+        # Скачайте файл сертификата и добавьте его в GitHub Secrets как BASE64_CERTIFICATE
+
+    - name: Import Code-Signing Certificate
+      run: |
+        # Импортируем сертификат из GitHub Secrets
         $certPassword = "password123" | ConvertTo-SecureString -Force -AsPlainText
-        New-SelfSignedCertificate -Type Custom -Subject "CN=YourCompany" -KeyUsage DigitalSignature -FriendlyName "YourCompanyCodeSigningCert" -CertStoreLocation "Cert:\LocalMachine\My" -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3") -HashAlgorithm SHA256 -NotAfter (Get-Date).AddYears(1) -KeyExportPolicy Exportable
-        $thumbprint = (Get-ChildItem -Path Cert:\LocalMachine\My | Where-Object { $_.Subject -eq "CN=YourCompany" } | Select-Object -First 1).Thumbprint
-        Export-PfxCertificate -Cert "Cert:\LocalMachine\My\$thumbprint" -FilePath "$(Build.SourcesDirectory)\MyCert.pfx" -Password $certPassword
+        $certBase64 = "${{ secrets.BASE64_CERTIFICATE }}"
+        $certPath = "$(Build.SourcesDirectory)\MyCert.pfx"
+
+        # Декодируем BASE64 в PFX-файл
+        [System.Convert]::FromBase64String($certBase64) | Set-Content -Path $certPath -Encoding Byte
+
+        # Импортируем сертификат в хранилище
+        Import-PfxCertificate -FilePath $certPath -CertStoreLocation Cert:\LocalMachine\My -Password $certPassword
 
     - name: Build MSI/MSIX
       run: |
         dotnet publish -f net8.0-windows10.0.19041.0 -c Release DnDClient.csproj --self-contained true -o ./publish/windows /p:AppxPackage=true /p:AppxBundle=Always /p:AppxPackageDir=.
-      # Это генерирует MSIX; для чистого MSI добавь WiX в проект и используй: dotnet msbuild /t:Publish /p:Configuration=Release /p:Platform=x64
-      # Если проект настроен на MSI через .wixproj, измени на: dotnet build DnDClientInstaller.wixproj -c Release
 
     - name: Sign the MSIX package
       run: |
@@ -80,12 +101,12 @@ jobs:
 
   create-release:
     runs-on: ubuntu-latest
-    needs: [build-android, build-windows]  # Ждём завершения сборок
+    needs: [build-android, build-windows]
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # Для чтения тегов
+        fetch-depth: 0
 
     - name: Download APK
       uses: actions/download-artifact@v4
@@ -119,4 +140,4 @@ jobs:
         draft: false
         prerelease: false
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Автоматически доступен
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
