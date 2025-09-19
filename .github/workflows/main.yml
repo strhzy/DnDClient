@@ -55,47 +55,20 @@ jobs:
           --self-contained true `
           -o ./publish/windows DnDClient.csproj
 
-    - name: Install WiX Toolset
-      run: choco install wixtoolset --version=3.11.2 -y --force
-
-    - name: Create WiX installer definition
+    - name: Install WiX
+      run: dotnet tool install --global wix
+        
+    - name: Build WiX on Windows
+      shell: bash
       run: |
-        echo ^<?xml version="1.0" encoding="UTF-8"?^> > installer.wxs
-        echo ^<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"^> >> installer.wxs
-        echo   ^<Product Id="*" Name="DnDClient" Language="1033" Version="1.0.0.0" Manufacturer="Alexey Inc." UpgradeCode="PUT-GUID-HERE"^> >> installer.wxs
-        echo     ^<Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" /^> >> installer.wxs
-        echo     ^<MajorUpgrade DowngradeErrorMessage="A newer version is already installed." /^> >> installer.wxs
-        echo     ^<MediaTemplate /^> >> installer.wxs
-        echo     ^<Feature Id="ProductFeature" Title="DnDClient" Level="1"^> >> installer.wxs
-        echo       ^<ComponentGroupRef Id="ProductComponents" /^> >> installer.wxs
-        echo     ^</Feature^> >> installer.wxs
-        echo   ^</Product^> >> installer.wxs
-        echo   ^<Fragment^> >> installer.wxs
-        echo     ^<Directory Id="TARGETDIR" Name="SourceDir"^> >> installer.wxs
-        echo       ^<Directory Id="ProgramFilesFolder"^> >> installer.wxs
-        echo         ^<Directory Id="INSTALLFOLDER" Name="DnDClient" /^> >> installer.wxs
-        echo       ^</Directory^> >> installer.wxs
-        echo     ^</Directory^> >> installer.wxs
-        echo   ^</Fragment^> >> installer.wxs
-        echo   ^<Fragment^> >> installer.wxs
-        echo     ^<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER"^> >> installer.wxs
-        echo       ^<Component Id="MainExecutable" Guid="*"^> >> installer.wxs
-        echo         ^<File Source="publish\\windows\\DnDClient.exe" /^> >> installer.wxs
-        echo       ^</Component^> >> installer.wxs
-        echo     ^</ComponentGroup^> >> installer.wxs
-        echo   ^</Fragment^> >> installer.wxs
-        echo ^</Wix^> >> installer.wxs
+        APP_VERSION=4.12.14 wix build app.wxs
 
-    - name: Build MSI
-      run: |
-        candle installer.wxs
-        light installer.wixobj -o ./publish/windows/DnDClient.msi
-
-    - name: Upload MSI artifact
+    - name: Add generated binaries to artifact
       uses: actions/upload-artifact@v4
       with:
-        name: maui-msi
-        path: ./publish/windows/*.msi
+        name: App-MSI
+        path: App.msi
+        if-no-files-found: error
 
   create-release:
     runs-on: ubuntu-latest
