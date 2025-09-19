@@ -15,18 +15,15 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '8.0.x'
+        dotnet-version: '8.0.x'  # Или '9.0.x' для .NET 9
 
     - name: Install Android workloads
       run: dotnet workload restore
 
     - name: Build APK
       run: |
-        dotnet publish -f net8.0-android -c Release -r android-arm64 `
-          -p:AndroidApplicationType=Apk `
-          -p:PublishReadyToRun=false `
-          --self-contained true `
-          -o ./publish/android DnDClient.csproj
+        dotnet publish -f net8.0-android -c Release -r android-arm64 -p:AndroidApplicationType=Apk /p:PublishReadyToRun=false DnDClient.csproj --self-contained true -o ./publish/android
+      # Здесь DnDClient - имя твоего проекта; скорректируй путь
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
@@ -48,36 +45,47 @@ jobs:
     - name: Install Windows workloads
       run: dotnet workload restore
 
-    - name: Publish Windows app (no MSIX, just exe)
+    - name: Create signing certificate
       run: |
-        dotnet publish -f net8.0-windows10.0.19041.0 -c Release `
-          -p:WindowsPackageType=None `
-          --self-contained true `
-          -o ./publish/windows DnDClient.csproj
+        # Создаем самоподписанный сертификат
+        $certPassword = "password123" | ConvertTo-SecureString -Force -AsPlainText
+        New-SelfSignedCertificate -Type Custom -Subject "CN=YourCompany" -KeyUsage DigitalSignature -FriendlyName "YourCompanyCodeSigningCert" -CertStoreLocation "Cert:\LocalMachine\My" -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3") -HashAlgorithm SHA256 -NotAfter (Get-Date).AddYears(1) -KeyExportPolicy Exportable
+        $thumbprint = (Get-ChildItem -Path Cert:\LocalMachine\My | Where-Object { $_.Subject -eq "CN=YourCompany" } | Select-Object -First 1).Thumbprint
+        Export-PfxCertificate -Cert "Cert:\LocalMachine\My\$thumbprint" -FilePath "$(Build.SourcesDirectory)\MyCert.pfx" -Password $certPassword
 
-    - name: Install WiX
-      run: dotnet tool install --global wix
-        
-    - name: Build WiX on Windows
-      shell: bash
+    - name: Build MSI/MSIX
       run: |
-        APP_VERSION=4.12.14 wix build app.wxs
+        dotnet publish -f net8.0-windows10.0.19041.0 -c Release DnDClient.csproj --self-contained true -o ./publish/windows /p:AppxPackage=true /p:AppxBundle=Always /p:AppxPackageDir=.
+      # Это генерирует MSIX; для чистого MSI добавь WiX в проект и используй: dotnet msbuild /t:Publish /p:Configuration=Release /p:Platform=x64
+      # Если проект настроен на MSI через .wixproj, измени на: dotnet build DnDClientInstaller.wixproj -c Release
 
-    - name: Add generated binaries to artifact
+    - name: Sign the MSIX package
+      run: |
+        signtool sign /fd SHA256 /a /tr http://timestamp.digicert.com /td SHA256 /v /f MyCert.pfx /p password123 ./publish/windows/*.msix
+
+    - name: Move and rename MSIX
+      run: |
+        if (Test-Path "D:\a\DnDClient\DnDClient\.DnDClient_1.0.0.1_Test/*.msix") { Move-Item "D:\a\DnDClient\DnDClient\.DnDClient_1.0.0.1_Test/*.msix" "./publish/windows/DnDClient.msi" }
+        if (Test-Path "D:\a\DnDClient\DnDClient\.DnDClient_1.0.0.1_Test/*.msixbundle") { Move-Item "D:\a\DnDClient\DnDClient\.DnDClient_1.0.0.1_Test/*.msixbundle" "./publish/windows/DnDClient.msixbundle" }
+        if (Test-Path "D:\a\DnDClient\DnDClient\.DnDClient_1.0.0.1_Test/*.msi") { Move-Item "D:\a\DnDClient\DnDClient\.DnDClient_1.0.0.1_Test/*.msi" "./publish/windows/DnDClient.msi" }
+
+    - name: Upload MSI/MSIX artifact
       uses: actions/upload-artifact@v4
       with:
-        name: App-MSI
-        path: App.msi
-        if-no-files-found: error
+        name: maui-msi
+        path: |
+          ./publish/windows/*.msi
+          ./publish/windows/*.msix
+          ./publish/windows/*.msixbundle
 
   create-release:
     runs-on: ubuntu-latest
-    needs: [build-android, build-windows]
+    needs: [build-android, build-windows]  # Ждём завершения сборок
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0
+        fetch-depth: 0  # Для чтения тегов
 
     - name: Download APK
       uses: actions/download-artifact@v4
@@ -97,8 +105,8 @@ jobs:
         files: |
           ./artifacts/*.apk
           ./artifacts/*.msi
-        tag_name: ${{ github.sha }}
-        name: Release ${{ github.sha }}
+        tag_name: ${{ github.ref_name }}
+        name: Release ${{ github.ref_name }}
         body: |
           ## Новые фичи
           - Автоматическая сборка MAUI приложения.
@@ -108,5 +116,7 @@ jobs:
           - MSI для Windows
           
           Собрано на GitHub Actions.
+        draft: false
+        prerelease: false
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Автоматически доступен
