@@ -128,7 +128,7 @@
                                                     TextColor="White"/>
                                         </StackLayout>
                                         
-                                        <Button Text="➕ Добавить в кампанию" 
+                                        <Button Text="Добавить в кампанию" 
                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type local:EntityManagementPage}}, 
                                                          Path=BindingContext.AddEnemyToCampaignCommand}"
                                                 CommandParameter="{Binding}"
@@ -140,7 +140,6 @@
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
-
                 </StackLayout>
             </ScrollView>
         </ContentPage>

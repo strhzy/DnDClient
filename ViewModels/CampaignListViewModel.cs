@@ -33,6 +33,38 @@ public partial class CampaignListViewModel : ObservableObject
         campaigns = new ObservableCollection<Campaign>(allCampaigns);
     }
 
+    [RelayCommand]
+    private async Task AddCampaign()
+    {
+        var campaign = new Campaign();
+        var userId = Preferences.Get("current_user_id", "");
+        campaign.MasterId = new Guid(userId);
+        string json = Serdeser.Serialize(campaign);
+        try
+        {
+            ApiHelper.Post<Campaign>(json, "Campaign");
+            campaigns.Add(campaign);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+    }
+    
+    [RelayCommand]
+    private async Task DelCampaign(Campaign campaign)
+    {
+        try
+        {
+            ApiHelper.Delete<Campaign>("Campaign", campaign.Id);
+            campaigns.Remove(campaign);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+    }
+
     private class CampaignIdComparer : IEqualityComparer<Campaign>
     {
         public bool Equals(Campaign x, Campaign y) => x.Id == y.Id;

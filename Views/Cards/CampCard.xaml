@@ -16,10 +16,11 @@
                 Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CampaignListViewModel}}, Path=TapCardCommand}"
                 CommandParameter="{Binding .}" />
         </Frame.GestureRecognizers>
-        <Grid RowDefinitions="*,*" ColumnDefinitions="*,*">
+        <Grid RowDefinitions="*,*" ColumnDefinitions="5*,5*,2*">
             <Label Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding Name, StringFormat='Название: {0}'}" FontSize="25" HorizontalTextAlignment="Center"></Label>
             <Label Grid.Row="1" Grid.Column="0" Text="{Binding Master.Username, StringFormat='Мастер: {0}'}"></Label>
             <Label Grid.Row="1" Grid.Column="1" Text="{Binding PlayerCharacters.Count, StringFormat='Игроков: {0}'}"></Label>
+            <Button Text="Удалить" BackgroundColor="Red" Grid.RowSpan="2" Grid.Column="2" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CampaignListViewModel}}, Path=DelCampaignCommand}"/>
         </Grid>
     </Frame>
 </ContentView>

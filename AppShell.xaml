@@ -28,6 +28,11 @@
         Title="Кампании"
         ContentTemplate="{DataTemplate views:CampaignListPage}"
         Route="CampaignPage" />
+    
+    <ShellContent
+        Title="Неигровые пресонажи"
+        ContentTemplate="{DataTemplate views:EntityManagementPage}"
+        Route="CampaignPage" />
 
     <MenuItem
         Text="Выход"

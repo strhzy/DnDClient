@@ -1,14 +1,15 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using DnDClient.Models;
+using Microsoft.AspNetCore.SignalR.Client;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Text.Json;
-using CommunityToolkit.Mvvm.Input;
-using Microsoft.AspNetCore.SignalR.Client;
 using DnDClient.Views;
-using System;
-using Microsoft.Extensions.Logging;
 
 namespace DnDClient.ViewModels;
 
@@ -17,16 +18,17 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
     [ObservableProperty] private bool masterMode;
     [ObservableProperty] private Combat combat;
     [ObservableProperty] private ObservableCollection<CombatLog> combatLogs = new();
-
-    private HubConnection? _hubConnection;
-    private CancellationTokenSource? _cts;
-
     [ObservableProperty] private string selectedActionType;
     [ObservableProperty] private CombatParticipant selectedTarget;
     [ObservableProperty] private Attack selectedAttack;
     [ObservableProperty] private bool isPlayerTurn;
     [ObservableProperty] private int attackDamage;
-    
+    [ObservableProperty] private CombatParticipant selectedNpc;
+    [ObservableProperty] private CombatParticipant selectedEnemy;
+
+    private HubConnection? _hubConnection;
+    private CancellationTokenSource? _cts;
+
     public CombatViewModel(Combat _combat, bool _masterMode = false)
     {
         if (_combat != null)
@@ -42,27 +44,24 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
         if (Combat == null) return;
 
         _cts = new CancellationTokenSource();
-        
+
         _hubConnection = new HubConnectionBuilder()
             .WithUrl($"https://localhost:5228/combathub?combatId={Combat.Id}")
-            .WithAutomaticReconnect() // Автоматическое переподключение
-            .ConfigureLogging(logging => logging.SetMinimumLevel(LogLevel.Information))
+            .WithAutomaticReconnect()
             .Build();
 
-        // Регистрируем обработчики сообщений от сервера
         SetupMessageHandlers();
 
         try
         {
             await _hubConnection.StartAsync(_cts.Token);
-            Console.WriteLine("Connected to SignalR Hub");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Connection failed: {ex.Message}");
         }
     }
-    
+
     [RelayCommand]
     public async Task OpenCombatAsync(Combat combat)
     {
@@ -79,51 +78,59 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
     {
         if (_hubConnection == null) return;
 
-        // Обработка хода игрока (для мастера)
         _hubConnection.On<CombatLog>("ReceivePlayerMove", log =>
         {
             if (MasterMode)
             {
-                // Добавляем лог в коллекцию для подтверждения мастером
                 CombatLogs.Add(log);
             }
         });
 
-        // Обработка подтверждения действия мастером
         _hubConnection.On<Combat, CombatLog>("ReceiveMasterConfirm", (updatedCombat, log) =>
         {
             Combat = updatedCombat;
-            
-            // Добавляем лог, если его еще нет
             if (!CombatLogs.Contains(log))
             {
                 CombatLogs.Add(log);
             }
         });
 
-        // Обработка обновления состояния боя
         _hubConnection.On<Combat>("ReceiveCombatUpdate", updatedCombat =>
         {
             Combat = updatedCombat;
         });
 
-        // Обработка уведомления о ходе игрока
         _hubConnection.On<bool>("ReceiveTurnUpdate", isPlayerTurn =>
         {
             IsPlayerTurn = isPlayerTurn;
         });
 
-        // Обработка событий подключения/отключения
+        _hubConnection.On<Combat, CombatLog>("ReceiveNpcMove", (updatedCombat, log) =>
+        {
+            Combat = updatedCombat;
+            if (!CombatLogs.Contains(log))
+            {
+                CombatLogs.Add(log);
+            }
+        });
+
+        _hubConnection.On<Combat, CombatLog>("ReceiveEnemyMove", (updatedCombat, log) =>
+        {
+            Combat = updatedCombat;
+            if (!CombatLogs.Contains(log))
+            {
+                CombatLogs.Add(log);
+            }
+        });
+
         _hubConnection.Closed += async (error) =>
         {
-            Console.WriteLine("Connection closed");
             await Task.Delay(5000);
             await ConnectSignalRAsync();
         };
 
         _hubConnection.Reconnected += (connectionId) =>
         {
-            Console.WriteLine("Reconnected to hub");
             return Task.CompletedTask;
         };
     }
@@ -165,7 +172,6 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
         var target = Combat.Participants.FirstOrDefault(p => p.Id == log.TargetId);
         if (source == null || target == null) return;
 
-        // Применяем изменения локально
         int damage = log.Damage ?? 0;
         if (log.Type == "attack")
             target.CurrentHitPoints = Math.Max(0, target.CurrentHitPoints - damage);
@@ -183,11 +189,79 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
     }
 
     [RelayCommand]
+    public async Task SendNpcActionAsync()
+    {
+        if (!MasterMode || Combat == null || SelectedNpc == null || 
+            string.IsNullOrEmpty(SelectedActionType) || _hubConnection == null)
+            return;
+
+        var log = new CombatLog
+        {
+            Type = SelectedActionType,
+            SourceId = SelectedNpc.Id,
+            TargetId = SelectedTarget.Id,
+            Damage = AttackDamage,
+            Message = $"НПС {SelectedNpc.Name} использует " +
+                     $"{SelectedAttack?.Name ?? SelectedActionType} на {SelectedTarget?.Name ?? "цель"}" +
+                     $" ({(SelectedActionType == "attack" ? "урон" : "лечение")}: {AttackDamage})"
+        };
+
+        try
+        {
+            await _hubConnection.InvokeAsync("SendNpcMove", log, _cts?.Token ?? default);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Send NPC error: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    public async Task SendEnemyActionAsync()
+    {
+        if (!MasterMode || Combat == null || SelectedEnemy == null || 
+            string.IsNullOrEmpty(SelectedActionType) || _hubConnection == null)
+            return;
+
+        var log = new CombatLog
+        {
+            Type = SelectedActionType,
+            SourceId = SelectedEnemy.Id,
+            TargetId = SelectedTarget.Id,
+            Damage = AttackDamage,
+            Message = $"Враг {SelectedEnemy.Name} использует " +
+                     $"{SelectedAttack?.Name ?? SelectedActionType} на {SelectedTarget?.Name ?? "цель"}" +
+                     $" ({(SelectedActionType == "attack" ? "урон" : "лечение")}: {AttackDamage})"
+        };
+
+        try
+        {
+            await _hubConnection.InvokeAsync("SendEnemyMove", log, _cts?.Token ?? default);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Send Enemy error: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
     public async Task ManageParticipantsAsync()
     {
         var vm = new CombatParticipantsViewModel(Combat);
         var page = new CombatParticipantsPage(Combat);
         await Shell.Current.Navigation.PushAsync(page);
+    }
+
+    public ObservableCollection<CombatParticipant> GetNpcs()
+    {
+        return new ObservableCollection<CombatParticipant>(
+            Combat.Participants.Where(p => p.Type == ParticipantType.Npc));
+    }
+
+    public ObservableCollection<CombatParticipant> GetEnemies()
+    {
+        return new ObservableCollection<CombatParticipant>(
+            Combat.Participants.Where(p => p.Type == ParticipantType.Enemy));
     }
 
     public async Task DisconnectAsync()

@@ -23,15 +23,24 @@
         <ApplicationTitle>DnDClient</ApplicationTitle>
 
         <!-- App Identifier -->
-        <ApplicationId>com.companyname.dndclient</ApplicationId>
+        <ApplicationId>com.strhzy.dndclient</ApplicationId>
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
         <ApplicationVersion>1</ApplicationVersion>
 
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">30.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
         <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+        <SignAssembly>true</SignAssembly>
+        <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+        <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+        <PackageCertificateThumbprint>9CA2B8DF9813B45C4846CBEAFADFC3EDC4D940E3</PackageCertificateThumbprint>
+        <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+        <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+        <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+        <GenerateTestArtifacts>True</GenerateTestArtifacts>
+        <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -82,7 +91,15 @@
     </ItemGroup>
 
     <ItemGroup>
-        <TrimmerRootAssembly Include="Newtonsoft.Json" />
+        <TrimmerRootAssembly Include="BCrypt.Net-Next" Version="4.0.3" />
+        <TrimmerRootAssembly Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+        <TrimmerRootAssembly Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.20" />
+        <TrimmerRootAssembly Include="Microsoft.AspNetCore.SignalR.Common" Version="8.0.20" />
+        <TrimmerRootAssembly Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+        <TrimmerRootAssembly Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
+        <TrimmerRootAssembly Include="Microsoft.Extensions.Logging.Debug" Version="8.0.1" />
+        <TrimmerRootAssembly Include="Newtonsoft.Json" Version="13.0.3" />
+        <TrimmerRootAssembly Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
     </ItemGroup>
 
     <ItemGroup>
