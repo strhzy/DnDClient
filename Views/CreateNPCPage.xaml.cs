@@ -1,5 +1,4 @@
 ﻿using DnDClient.ViewModels;
-using Microsoft.Maui.Controls;
 
 namespace DnDClient.Views
 {
@@ -8,7 +7,7 @@ namespace DnDClient.Views
         public CreateNPCPage()
         {
             InitializeComponent();
-            //BindingContext = new CreateNPCViewModel();
+            BindingContext = new CreateNPCViewModel();
         }
     }
 }

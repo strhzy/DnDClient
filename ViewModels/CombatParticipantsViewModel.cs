@@ -1,43 +1,34 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DnDClient.Models;
 using DnDClient.Services;
+using DnDClient.Views;
 using Newtonsoft.Json;
-using System;
-using System.Collections.ObjectModel;
 
 namespace DnDClient.ViewModels;
 
 public partial class CombatParticipantsViewModel : ObservableObject
 {
     private INavigation _navigation;
-    
-    [ObservableProperty]
-    private Combat combat;
 
-    [ObservableProperty]
-    private ObservableCollection<CombatParticipant> participants = new();
+    [ObservableProperty] private ObservableCollection<PlayerCharacter> availableCharacters = new();
 
-    [ObservableProperty]
-    private ObservableCollection<PlayerCharacter> availableCharacters = new();
-    
-    [ObservableProperty]
-    private ObservableCollection<NPC> availableNPCs = new();
-    
-    [ObservableProperty]
-    private ObservableCollection<Enemy> availableEnemies = new();
+    [ObservableProperty] private ObservableCollection<Enemy> availableEnemies = new();
 
-    [ObservableProperty]
-    private ParticipantType selectedParticipantType = ParticipantType.Player;
+    [ObservableProperty] private ObservableCollection<NPC> availableNPCs = new();
+
+    [ObservableProperty] private Combat combat;
+
+    [ObservableProperty] private bool isEditingParticipant = false;
+
+    [ObservableProperty] private ObservableCollection<CombatParticipant> participants = new();
 
     [ObservableProperty] private object selectedEntityToAdd = new();
 
-    public ObservableCollection<ParticipantType> ParticipantTypes { get; } = new ObservableCollection<ParticipantType>
-    {
-        ParticipantType.Player,
-        ParticipantType.Npc,
-        ParticipantType.Enemy
-    };
+    [ObservableProperty] private CombatParticipant selectedParticipant;
+
+    [ObservableProperty] private ParticipantType selectedParticipantType = ParticipantType.Player;
 
     public CombatParticipantsViewModel(Combat _combat)
     {
@@ -46,6 +37,13 @@ public partial class CombatParticipantsViewModel : ObservableObject
         combat.Participants ??= new ObservableCollection<CombatParticipant>();
         LoadData();
     }
+
+    public ObservableCollection<ParticipantType> ParticipantTypes { get; } = new ObservableCollection<ParticipantType>
+    {
+        ParticipantType.Player,
+        ParticipantType.Npc,
+        ParticipantType.Enemy
+    };
 
     public void LoadData()
     {
@@ -58,11 +56,11 @@ public partial class CombatParticipantsViewModel : ObservableObject
                 return;
             }
 
-            Participants = combat.Participants != null 
+            Participants = combat.Participants != null
                 ? new ObservableCollection<CombatParticipant>(combat.Participants)
                 : new ObservableCollection<CombatParticipant>();
             Console.WriteLine($"Loaded {Participants.Count} participants");
-        
+
             LoadAvailableEntities();
         }
         catch (Exception ex)
@@ -76,7 +74,11 @@ public partial class CombatParticipantsViewModel : ObservableObject
     {
         try
         {
-            availableCharacters = ApiHelper.Get<ObservableCollection<PlayerCharacter>>("PlayerCharacter");
+            var id = Combat.CampaignId.ToString();
+
+            availableCharacters =
+                ApiHelper.Get<ObservableCollection<PlayerCharacter>>(
+                    $"PlayerCharacter?campaignId={combat.CampaignId.ToString()}");
             Console.WriteLine($"Loaded {availableCharacters.Count} PlayerCharacters");
 
             availableNPCs = ApiHelper.Get<ObservableCollection<NPC>>("NPC");
@@ -112,12 +114,12 @@ public partial class CombatParticipantsViewModel : ObservableObject
                 participant = CreateParticipantFromCharacter(character);
                 successMessage = $"Персонаж {character.Name} добавлен в бой";
                 break;
-                
+
             case NPC npc:
                 participant = CreateParticipantFromNPC(npc);
                 successMessage = $"NPC {npc.Name} добавлен в бой";
                 break;
-                
+
             case Enemy enemy:
                 participant = CreateParticipantFromEnemy(enemy);
                 successMessage = $"Враг {enemy.Name} добавлен в бой";
@@ -129,8 +131,8 @@ public partial class CombatParticipantsViewModel : ObservableObject
             try
             {
                 var json = JsonConvert.SerializeObject(participant);
-                var success = ApiHelper.Post<CombatParticipant>(json, $"Combat/{combat.Id}/participants");
-                
+                var success = ApiHelper.Post<CombatParticipant>(json, "CombatParticipant");
+
                 if (success)
                 {
                     var result = ApiHelper.Get<CombatParticipant>("CombatParticipant", participant.Id);
@@ -156,6 +158,8 @@ public partial class CombatParticipantsViewModel : ObservableObject
                 await Shell.Current.DisplayAlert("Ошибка", $"Не удалось добавить участника: {ex.Message}", "OK");
             }
         }
+
+        LoadData();
     }
 
     private CombatParticipant CreateParticipantFromCharacter(PlayerCharacter character)
@@ -254,12 +258,112 @@ public partial class CombatParticipantsViewModel : ObservableObject
     [RelayCommand]
     public async Task OpenNPCCreation()
     {
-        //await Shell.Current.GoToAsync(nameof(Views.CreateNPCPage));
-        await _navigation.PushModalAsync(new Views.CreateNPCPage());
+        await Shell.Current.Navigation.PushAsync(new CreateNPCPage());
     }
+
     [RelayCommand]
     public async Task OpenEnemyCreation()
     {
-        await _navigation.PushAsync(new Views.CreateEnemyPage());
+        await Shell.Current.Navigation.PushAsync(new CreateEnemyPage());
+    }
+
+    [RelayCommand]
+    public async Task EditNPC(NPC npc)
+    {
+        if (npc == null) return;
+        var navigationParameter = new Dictionary<string, object>
+        {
+            { "NPC", npc }
+        };
+        await Shell.Current.GoToAsync(nameof(CreateNPCPage), navigationParameter);
+    }
+
+    [RelayCommand]
+    public async Task EditEnemy(Enemy enemy)
+    {
+        if (enemy == null) return;
+        var navigationParameter = new Dictionary<string, object>
+        {
+            { "Enemy", enemy }
+        };
+        await Shell.Current.GoToAsync(nameof(CreateEnemyPage), navigationParameter);
+    }
+
+    [RelayCommand]
+    public void EditParticipant(CombatParticipant participant)
+    {
+        if (participant == null) return;
+        SelectedParticipant = new CombatParticipant
+        {
+            Id = participant.Id,
+            Name = participant.Name,
+            Initiative = participant.Initiative,
+            CurrentHitPoints = participant.CurrentHitPoints,
+            MaxHitPoints = participant.MaxHitPoints,
+            ArmorClass = participant.ArmorClass,
+            Type = participant.Type,
+            SourceId = participant.SourceId,
+            CombatId = participant.CombatId
+        };
+        IsEditingParticipant = true;
+    }
+
+    [RelayCommand]
+    public void SaveParticipantChanges()
+    {
+        if (SelectedParticipant == null) return;
+
+        var json = JsonConvert.SerializeObject(SelectedParticipant);
+        var result = ApiHelper.Put<CombatParticipant>(json, "CombatParticipant", SelectedParticipant.Id);
+
+        if (result)
+        {
+            var index = Participants.FirstOrDefault(p => p.Id == SelectedParticipant.Id);
+            if (index != null)
+            {
+                var participantIndex = Participants.IndexOf(index);
+                if (participantIndex != -1)
+                {
+                    Participants[participantIndex] = SelectedParticipant;
+                }
+            }
+
+            IsEditingParticipant = false;
+            SelectedParticipant = null;
+            LoadData();
+        }
+    }
+
+    [RelayCommand]
+    public void DeleteParticipant(CombatParticipant participant)
+    {
+        if (participant == null) return;
+
+        var result = ApiHelper.Delete<CombatParticipant>("CombatParticipant", participant.Id);
+        if (result)
+        {
+            Participants.Remove(participant);
+            combat.Participants.Remove(participant);
+        }
+    }
+
+    [RelayCommand]
+    private void CancelEdit()
+    {
+        IsEditingParticipant = false;
+        SelectedParticipant = null;
+    }
+
+    [RelayCommand]
+    public void UpdateParticipantHealth(CombatParticipant participant)
+    {
+        if (participant == null) return;
+
+        var json = JsonConvert.SerializeObject(participant);
+        var result = ApiHelper.Put<CombatParticipant>(json, "CombatParticipant/health", participant.Id);
+        if (result)
+        {
+            LoadData();
+        }
     }
 }

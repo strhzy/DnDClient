@@ -10,19 +10,9 @@ namespace DnDClient.ViewModels;
 public partial class CampaignListViewModel : ObservableObject
 {
     private readonly INavigation _navigation;
-    
-    [ObservableProperty]
-    private ObservableCollection<Campaign> campaigns;
-    
-    [RelayCommand]
-    private async Task TapCard(Campaign campaign)
-    {
-        if (campaign != null)
-        {
-            await _navigation.PushAsync(new CampaignPage(campaign));
-        }
-    }
-    
+
+    [ObservableProperty] private ObservableCollection<Campaign> campaigns;
+
     public CampaignListViewModel(INavigation navigation)
     {
         _navigation = navigation;
@@ -34,30 +24,45 @@ public partial class CampaignListViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task TapCard(Campaign campaign)
+    {
+        if (campaign != null)
+        {
+            await _navigation.PushAsync(new CampaignPage(campaign));
+        }
+    }
+
+    [RelayCommand]
     private async Task AddCampaign()
     {
         var campaign = new Campaign();
         var userId = Preferences.Get("current_user_id", "");
+        campaign.Name = "new campaign";
+        campaign.Master = ApiHelper.Get<User>("User", new Guid(userId));
         campaign.MasterId = new Guid(userId);
         string json = Serdeser.Serialize(campaign);
         try
         {
-            ApiHelper.Post<Campaign>(json, "Campaign");
-            campaigns.Add(campaign);
+            if (ApiHelper.Post<Campaign>(json, "Campaign"))
+            {
+                campaigns.Add(campaign);
+            }
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
         }
     }
-    
+
     [RelayCommand]
     private async Task DelCampaign(Campaign campaign)
     {
         try
         {
-            ApiHelper.Delete<Campaign>("Campaign", campaign.Id);
-            campaigns.Remove(campaign);
+            if (ApiHelper.Delete<Campaign>("Campaign", campaign.Id))
+            {
+                campaigns.Remove(campaign);
+            }
         }
         catch (Exception e)
         {

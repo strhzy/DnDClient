@@ -1,41 +1,90 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:DnDClient.ViewModels"
-             x:Class="DnDClient.Views.CreateEnemyPage">
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="16">
-            <Label Text="Создать врага" FontSize="24" HorizontalOptions="Center" />
-            <Entry Placeholder="Имя" Text="{Binding Name}" />
-            <Entry Placeholder="Slug (уникальный идентификатор)" Text="{Binding Slug}" />
-            <Entry Placeholder="Размер" Text="{Binding Size}" />
-            <Entry Placeholder="Тип" Text="{Binding Type}" />
-            <Entry Placeholder="Подтип" Text="{Binding Subtype}" />
-            <Entry Placeholder="Группа" Text="{Binding Group}" />
-            <Entry Placeholder="Мировоззрение" Text="{Binding Alignment}" />
-            <Entry Placeholder="Класс брони" Keyboard="Numeric" Text="{Binding ArmorClass}" />
-            <Entry Placeholder="Описание брони" Text="{Binding ArmorDescription}" />
-            <Entry Placeholder="Здоровье" Keyboard="Numeric" Text="{Binding HitPoints}" />
-            <Entry Placeholder="Кубики хитов" Text="{Binding HitDice}" />
-            <Entry Placeholder="Скорость (строка)" Text="{Binding Speed}" />
-            <Entry Placeholder="Сила" Keyboard="Numeric" Text="{Binding Strength}" />
-            <Entry Placeholder="Ловкость" Keyboard="Numeric" Text="{Binding Dexterity}" />
-            <Entry Placeholder="Телосложение" Keyboard="Numeric" Text="{Binding Constitution}" />
-            <Entry Placeholder="Интеллект" Keyboard="Numeric" Text="{Binding Intelligence}" />
-            <Entry Placeholder="Мудрость" Keyboard="Numeric" Text="{Binding Wisdom}" />
-            <Entry Placeholder="Харизма" Keyboard="Numeric" Text="{Binding Charisma}" />
-            <Entry Placeholder="Восприятие" Keyboard="Numeric" Text="{Binding Perception}" />
-            <Entry Placeholder="Навыки (строка)" Text="{Binding Skills}" />
-            <Entry Placeholder="Уязвимости к урону" Text="{Binding DamageVulnerabilities}" />
-            <Entry Placeholder="Сопротивления урону" Text="{Binding DamageResistances}" />
-            <Entry Placeholder="Иммунитет к урону" Text="{Binding DamageImmunities}" />
-            <Entry Placeholder="Иммунитет к состояниям" Text="{Binding ConditionImmunities}" />
-            <Entry Placeholder="Чувства" Text="{Binding Senses}" />
-            <Entry Placeholder="Языки" Text="{Binding Languages}" />
-            <Entry Placeholder="Опасность (CR)" Text="{Binding ChallengeRating}" />
-            <Entry Placeholder="Значение CR (число)" Keyboard="Numeric" Text="{Binding ChallengeRatingValue}" />
-            <Editor Placeholder="Описание" HeightRequest="100" Text="{Binding Description}" />
-            <Button Text="Создать" Command="{Binding CreateEnemyAsyncCommand}" />
-        </VerticalStackLayout>
-    </ScrollView>
+             xmlns:local="using:DnDClient.Views"
+             x:Class="DnDClient.Views.CreateEnemyPage"
+             Title="{Binding Title}">
+
+    <ContentPage.Content>
+        <ScrollView>
+            <VerticalStackLayout Padding="20" Spacing="16">
+                <Entry Placeholder="Имя" Text="{Binding Name}" />
+                <Entry Placeholder="Тип" Text="{Binding Type}" />
+                <Entry Placeholder="Здоровье" Keyboard="Numeric" Text="{Binding HitPoints}" />
+                <Entry Placeholder="Класс брони" Keyboard="Numeric" Text="{Binding ArmorClass}" />
+                <Entry Placeholder="CR" Text="{Binding ChallengeRating}" />
+                <Editor Placeholder="Описание" HeightRequest="100" Text="{Binding Description}" />
+
+                <Frame Padding="10" Margin="0,10">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Специальные способности" FontAttributes="Bold" />
+                        <Button Text="Добавить способность" Command="{Binding AddAbilityCommand}" />
+                        <CollectionView ItemsSource="{Binding SpecialAbilities}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Frame Margin="0,5" Padding="10">
+                                        <Grid ColumnDefinitions="*, Auto">
+                                            <VerticalStackLayout Grid.Column="0" Spacing="5">
+                                                <Entry Text="{Binding Name}" Placeholder="Название" />
+                                                <Editor Text="{Binding Description}"
+                                                        Placeholder="Описание"
+                                                        HeightRequest="60"
+                                                        AutoSize="TextChanges" />
+                                            </VerticalStackLayout>
+                                            <Button Grid.Column="1"
+                                                    Text="🗑️"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:CreateEnemyPage}}, Path=BindingContext.DelAbilityCommand}"
+                                                    CommandParameter="{Binding .}"
+                                                    BackgroundColor="#F44336"
+                                                    TextColor="White"
+                                                    WidthRequest="40" />
+                                        </Grid>
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <Frame Padding="10" Margin="0,10">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Атаки" FontAttributes="Bold" />
+                        <Button Text="Добавить атаку" Command="{Binding AddAttackCommand}" />
+                        <CollectionView ItemsSource="{Binding Attacks}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Frame Margin="0,5" Padding="10">
+                                        <Grid ColumnDefinitions="*, *, Auto">
+                                            <VerticalStackLayout Grid.Column="0" Spacing="5">
+                                                <Entry Text="{Binding Name}" Placeholder="Название" />
+                                                <Entry Text="{Binding AttackBonus}" Placeholder="Бонус атаки" />
+                                            </VerticalStackLayout>
+                                            <VerticalStackLayout Grid.Column="1" Spacing="5">
+                                                <Entry Text="{Binding DamageDice}" Placeholder="Кость урона" />
+                                                <Entry Text="{Binding DamageBonus}" Placeholder="Бонус урона" />
+                                            </VerticalStackLayout>
+                                            <Button Grid.Column="2"
+                                                    Text="🗑️"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:CreateEnemyPage}}, Path=BindingContext.DelAttackCommand}"
+                                                    CommandParameter="{Binding .}"
+                                                    BackgroundColor="#F44336"
+                                                    TextColor="White"
+                                                    WidthRequest="40" />
+                                        </Grid>
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <Button Text="{Binding ActionButtonText}"
+                        Command="{Binding SaveCommand}"
+                        BackgroundColor="#4CAF50"
+                        TextColor="White"
+                        Margin="0,20,0,0" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </ContentPage.Content>
 </ContentPage>

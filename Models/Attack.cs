@@ -7,36 +7,29 @@ namespace DnDClient.Models;
 
 public partial class Attack : ObservableObject
 {
-    [Key]
-    [ObservableProperty]
-    private Guid id = Guid.NewGuid();
+    [ObservableProperty] private int? attackBonus;
 
-    [ObservableProperty]
-    private string name = "default";
-    
-    [ObservableProperty]
-    private string description = "default";
-
-    [ObservableProperty]
-    private int? attackBonus;
-    
-    [JsonPropertyName("damage_dice")]
-    [ObservableProperty]
+    [JsonPropertyName("damage_dice")] [ObservableProperty]
     private string damageDice = "default";
 
-    [ForeignKey("PlayerCharacter")]
-    [ObservableProperty]
-    private Guid? playerCharacterId;
+    [ObservableProperty] private string description = "default";
 
-    [ForeignKey("Enemy")]
-    [ObservableProperty]
+    [JsonIgnore] [ObservableProperty] private Enemy? enemy;
+
+    [ForeignKey("Enemy")] [ObservableProperty]
     private Guid? enemyId;
 
-    [JsonIgnore]
-    [ObservableProperty]
-    private PlayerCharacter? playerCharacter;
+    [Key] [ObservableProperty] private Guid id = Guid.NewGuid();
 
-    [JsonIgnore]
-    [ObservableProperty]
-    private Enemy? enemy;
+    [ObservableProperty] private string name = "default";
+
+    [JsonIgnore] [ObservableProperty] private NPC? npc;
+
+    [ForeignKey("NPC")] [ObservableProperty]
+    private Guid? npcId;
+
+    [JsonIgnore] [ObservableProperty] private PlayerCharacter? playerCharacter;
+
+    [ForeignKey("PlayerCharacter")] [ObservableProperty]
+    private Guid? playerCharacterId;
 }

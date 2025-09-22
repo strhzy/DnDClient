@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
+
 <Shell
     x:Class="DnDClient.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:DnDClient"
     xmlns:views="clr-namespace:DnDClient.Views"
     Shell.FlyoutBehavior="Disabled"
     Title="DnDClient">
@@ -11,27 +11,22 @@
     <ShellContent
         Title="Вход"
         ContentTemplate="{DataTemplate views:AuthPage}"
-        Route="AuthPage" 
-        FlyoutItemIsVisible="False"/>
-        
+        Route="AuthPage"
+        FlyoutItemIsVisible="False" />
+
     <ShellContent
         Title="Главная"
         ContentTemplate="{DataTemplate views:MainPage}"
         Route="MainPage" />
-    
+
     <ShellContent
         Title="Персонажи"
         ContentTemplate="{DataTemplate views:CharactersPage}"
         Route="CharactersPage" />
-    
+
     <ShellContent
         Title="Кампании"
         ContentTemplate="{DataTemplate views:CampaignListPage}"
-        Route="CampaignPage" />
-    
-    <ShellContent
-        Title="Неигровые пресонажи"
-        ContentTemplate="{DataTemplate views:EntityManagementPage}"
         Route="CampaignPage" />
 
     <MenuItem

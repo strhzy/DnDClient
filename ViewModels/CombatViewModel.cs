@@ -2,32 +2,27 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DnDClient.Models;
-using Microsoft.AspNetCore.SignalR.Client;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using DnDClient.Services;
 using DnDClient.Views;
+using Microsoft.AspNetCore.SignalR.Client;
 
 namespace DnDClient.ViewModels;
 
 public partial class CombatViewModel : ObservableObject, IAsyncDisposable
 {
-    [ObservableProperty] private bool masterMode;
-    [ObservableProperty] private Combat combat;
-    [ObservableProperty] private ObservableCollection<CombatLog> combatLogs = new();
-    [ObservableProperty] private string selectedActionType;
-    [ObservableProperty] private CombatParticipant selectedTarget;
-    [ObservableProperty] private Attack selectedAttack;
-    [ObservableProperty] private bool isPlayerTurn;
-    [ObservableProperty] private int attackDamage;
-    [ObservableProperty] private CombatParticipant selectedNpc;
-    [ObservableProperty] private CombatParticipant selectedEnemy;
+    private CancellationTokenSource? _cts;
 
     private HubConnection? _hubConnection;
-    private CancellationTokenSource? _cts;
+    [ObservableProperty] private int attackDamage;
+    [ObservableProperty] private Combat combat;
+    [ObservableProperty] private ObservableCollection<CombatLog> combatLogs = new();
+    [ObservableProperty] private bool isPlayerTurn;
+    [ObservableProperty] private bool masterMode;
+    [ObservableProperty] private string selectedActionType;
+    [ObservableProperty] private Attack selectedAttack;
+    [ObservableProperty] private CombatParticipant selectedEnemy;
+    [ObservableProperty] private CombatParticipant selectedNpc;
+    [ObservableProperty] private CombatParticipant selectedTarget;
 
     public CombatViewModel(Combat _combat, bool _masterMode = false)
     {
@@ -36,7 +31,14 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
             Combat = _combat;
             MasterMode = _masterMode;
             IsPlayerTurn = !MasterMode && Combat.CurrentParticipant.Type == ParticipantType.Player;
+            CombatLogs = ApiHelper.Get<ObservableCollection<CombatLog>>("CombatLog");
+            combat.CombatLogs = CombatLogs;
         }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await DisconnectAsync();
     }
 
     public async Task ConnectSignalRAsync()
@@ -46,7 +48,7 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
         _cts = new CancellationTokenSource();
 
         _hubConnection = new HubConnectionBuilder()
-            .WithUrl($"https://localhost:5228/combathub?combatId={Combat.Id}")
+            .WithUrl($"https://localhost:5228/api/combathub?combatId={Combat.Id}")
             .WithAutomaticReconnect()
             .Build();
 
@@ -71,7 +73,7 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
             { "Combat", combat },
             { "MasterMode", masterMode }
         };
-        await Shell.Current.GoToAsync(nameof(DnDClient.Views.CombatPage), navParam);
+        await Shell.Current.GoToAsync(nameof(CombatPage), navParam);
     }
 
     private void SetupMessageHandlers()
@@ -95,15 +97,9 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
             }
         });
 
-        _hubConnection.On<Combat>("ReceiveCombatUpdate", updatedCombat =>
-        {
-            Combat = updatedCombat;
-        });
+        _hubConnection.On<Combat>("ReceiveCombatUpdate", updatedCombat => { Combat = updatedCombat; });
 
-        _hubConnection.On<bool>("ReceiveTurnUpdate", isPlayerTurn =>
-        {
-            IsPlayerTurn = isPlayerTurn;
-        });
+        _hubConnection.On<bool>("ReceiveTurnUpdate", isPlayerTurn => { IsPlayerTurn = isPlayerTurn; });
 
         _hubConnection.On<Combat, CombatLog>("ReceiveNpcMove", (updatedCombat, log) =>
         {
@@ -129,16 +125,13 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
             await ConnectSignalRAsync();
         };
 
-        _hubConnection.Reconnected += (connectionId) =>
-        {
-            return Task.CompletedTask;
-        };
+        _hubConnection.Reconnected += (connectionId) => { return Task.CompletedTask; };
     }
 
     [RelayCommand]
     public async Task SendPlayerActionAsync()
     {
-        if (!IsPlayerTurn || Combat == null || SelectedTarget == null || 
+        if (!IsPlayerTurn || Combat == null || SelectedTarget == null ||
             string.IsNullOrEmpty(SelectedActionType) || _hubConnection == null)
             return;
 
@@ -149,13 +142,14 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
             TargetId = SelectedTarget.Id,
             Damage = AttackDamage,
             Message = $"Игрок {Combat.CurrentParticipant.Name} использует " +
-                     $"{SelectedAttack?.Name ?? SelectedActionType} на {SelectedTarget.Name}" +
-                     $" ({(SelectedActionType == "attack" ? "урон" : "лечение")}: {AttackDamage})"
+                      $"{SelectedAttack?.Name ?? SelectedActionType} на {SelectedTarget.Name}" +
+                      $" ({(SelectedActionType == "attack" ? "урон" : "лечение")}: {AttackDamage})"
         };
 
         try
         {
             await _hubConnection.InvokeAsync("SendPlayerMove", log, _cts?.Token ?? default);
+            ApiHelper.Post<CombatLog>(Serdeser.Serialize(log), "CombatLog");
         }
         catch (Exception ex)
         {
@@ -191,7 +185,7 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
     [RelayCommand]
     public async Task SendNpcActionAsync()
     {
-        if (!MasterMode || Combat == null || SelectedNpc == null || 
+        if (!MasterMode || Combat == null || SelectedNpc == null ||
             string.IsNullOrEmpty(SelectedActionType) || _hubConnection == null)
             return;
 
@@ -202,13 +196,14 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
             TargetId = SelectedTarget.Id,
             Damage = AttackDamage,
             Message = $"НПС {SelectedNpc.Name} использует " +
-                     $"{SelectedAttack?.Name ?? SelectedActionType} на {SelectedTarget?.Name ?? "цель"}" +
-                     $" ({(SelectedActionType == "attack" ? "урон" : "лечение")}: {AttackDamage})"
+                      $"{SelectedAttack?.Name ?? SelectedActionType} на {SelectedTarget?.Name ?? "цель"}" +
+                      $" ({(SelectedActionType == "attack" ? "урон" : "лечение")}: {AttackDamage})"
         };
 
         try
         {
             await _hubConnection.InvokeAsync("SendNpcMove", log, _cts?.Token ?? default);
+            ApiHelper.Post<CombatLog>(Serdeser.Serialize(log), "CombatLog");
         }
         catch (Exception ex)
         {
@@ -219,7 +214,7 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
     [RelayCommand]
     public async Task SendEnemyActionAsync()
     {
-        if (!MasterMode || Combat == null || SelectedEnemy == null || 
+        if (!MasterMode || Combat == null || SelectedEnemy == null ||
             string.IsNullOrEmpty(SelectedActionType) || _hubConnection == null)
             return;
 
@@ -230,13 +225,14 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
             TargetId = SelectedTarget.Id,
             Damage = AttackDamage,
             Message = $"Враг {SelectedEnemy.Name} использует " +
-                     $"{SelectedAttack?.Name ?? SelectedActionType} на {SelectedTarget?.Name ?? "цель"}" +
-                     $" ({(SelectedActionType == "attack" ? "урон" : "лечение")}: {AttackDamage})"
+                      $"{SelectedAttack?.Name ?? SelectedActionType} на {SelectedTarget?.Name ?? "цель"}" +
+                      $" ({(SelectedActionType == "attack" ? "урон" : "лечение")}: {AttackDamage})"
         };
 
         try
         {
             await _hubConnection.InvokeAsync("SendEnemyMove", log, _cts?.Token ?? default);
+            ApiHelper.Post<CombatLog>(Serdeser.Serialize(log), "CombatLog");
         }
         catch (Exception ex)
         {
@@ -245,11 +241,11 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
     }
 
     [RelayCommand]
-    public async Task ManageParticipantsAsync()
+    public void ManageParticipants()
     {
         var vm = new CombatParticipantsViewModel(Combat);
         var page = new CombatParticipantsPage(Combat);
-        await Shell.Current.Navigation.PushAsync(page);
+        Shell.Current.Navigation.PushAsync(page);
     }
 
     public ObservableCollection<CombatParticipant> GetNpcs()
@@ -271,12 +267,8 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
             await _hubConnection.StopAsync();
             await _hubConnection.DisposeAsync();
         }
+
         _cts?.Cancel();
         _cts?.Dispose();
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        await DisconnectAsync();
     }
 }

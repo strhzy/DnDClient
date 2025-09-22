@@ -1,23 +1,63 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:DnDClient.ViewModels"
-             x:Class="DnDClient.Views.CreateNPCPage">
+             xmlns:local="using:DnDClient.Views"
+             x:Class="DnDClient.Views.CreateNPCPage"
+             Title="{Binding Title}">
+
     <ContentPage.Content>
         <ScrollView>
             <VerticalStackLayout Padding="20" Spacing="16">
-                <Label Text="Создать NPC" FontSize="24" HorizontalOptions="Center" />
                 <Entry Placeholder="Имя" Text="{Binding Name}" />
                 <Entry Placeholder="Роль" Text="{Binding Role}" />
                 <Entry Placeholder="Раса" Text="{Binding Race}" />
                 <Entry Placeholder="Профессия" Text="{Binding Occupation}" />
                 <Entry Placeholder="Здоровье" Keyboard="Numeric" Text="{Binding HitPoints}" />
                 <Entry Placeholder="Класс брони" Keyboard="Numeric" Text="{Binding ArmorClass}" />
+                <Editor Placeholder="Описание" HeightRequest="100" Text="{Binding Description}" />
                 <Editor Placeholder="Черты характера" HeightRequest="60" Text="{Binding PersonalityTraits}" />
                 <Editor Placeholder="Идеалы" HeightRequest="60" Text="{Binding Ideals}" />
                 <Editor Placeholder="Узы" HeightRequest="60" Text="{Binding Bonds}" />
                 <Editor Placeholder="Изъяны" HeightRequest="60" Text="{Binding Flaws}" />
-                <Button Text="Создать" Command="{Binding CreateNPCAsyncCommand}" />
+
+                <Frame Padding="10" Margin="0,10">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Атаки" FontAttributes="Bold" />
+                        <Button Text="Добавить атаку" Command="{Binding AddAttackCommand}" />
+                        <CollectionView ItemsSource="{Binding Attacks}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Frame Margin="0,5" Padding="10">
+                                        <Grid ColumnDefinitions="*, *, Auto">
+                                            <VerticalStackLayout Grid.Column="0" Spacing="5">
+                                                <Entry Text="{Binding Name}" Placeholder="Название" />
+                                                <Entry Text="{Binding AttackBonus}" Placeholder="Бонус атаки" />
+                                            </VerticalStackLayout>
+                                            <VerticalStackLayout Grid.Column="1" Spacing="5">
+                                                <Entry Text="{Binding DamageDice}" Placeholder="Кость урона" />
+                                                <Entry Text="{Binding DamageBonus}" Placeholder="Бонус урона" />
+                                            </VerticalStackLayout>
+                                            <Button Grid.Column="2"
+                                                    Text="🗑️"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:CreateNPCPage}}, Path=BindingContext.DelAttackCommand}"
+                                                    CommandParameter="{Binding .}"
+                                                    BackgroundColor="#F44336"
+                                                    TextColor="White"
+                                                    WidthRequest="40" />
+                                        </Grid>
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <Button Text="{Binding ActionButtonText}"
+                        Command="{Binding SaveCommand}"
+                        BackgroundColor="#4CAF50"
+                        TextColor="White"
+                        Margin="0,20,0,0" />
             </VerticalStackLayout>
         </ScrollView>
     </ContentPage.Content>

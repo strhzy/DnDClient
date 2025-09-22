@@ -1,6 +1,4 @@
-﻿using DnDClient.Views;
-
-namespace DnDClient;
+﻿namespace DnDClient;
 
 public partial class AppShell : Shell
 {
@@ -27,12 +25,45 @@ public partial class AppShell : Shell
         GoToAsync("//MainPage");
     }
 
-    private void OnLogoutClicked(object sender, EventArgs e)
+    private async void OnLogoutClicked(object sender, EventArgs e)
     {
-        SecureStorage.Remove("auth_token");
-        FlyoutBehavior = FlyoutBehavior.Disabled;
-        
-        GoToAsync("//AuthPage");
+        try
+        {
+            SecureStorage.Remove("auth_token");
+            ClearGlobalData();
+            ClearNavigationStack();
+            ForceGarbageCollection();
+            RestartApplication();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при выходе: {ex.Message}");
+        }
+    }
+
+    private void ClearGlobalData()
+    {
+        Preferences.Clear();
+        SecureStorage.RemoveAll();
+    }
+
+    private void ClearNavigationStack()
+    {
+        foreach (var page in Navigation.NavigationStack.ToList())
+        {
+            Navigation.RemovePage(page);
+        }
+    }
+
+
+    private void ForceGarbageCollection()
+    {
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+    }
+
+    private void RestartApplication()
+    {
+        Application.Current.MainPage = new AppShell();
     }
 }
-

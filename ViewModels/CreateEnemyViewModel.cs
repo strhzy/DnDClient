@@ -1,86 +1,145 @@
-﻿using System.ComponentModel;
-using System.Threading.Tasks;
-using DnDClient.Models;
-using DnDClient.Services;
-using System.Windows.Input;
-using Microsoft.Maui.Controls;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DnDClient.Models;
+using DnDClient.Services;
+using Newtonsoft.Json;
 
-namespace DnDClient.ViewModels
+namespace DnDClient.ViewModels;
+
+public partial class CreateEnemyViewModel : ObservableObject, IQueryAttributable
 {
-    public partial class CreateEnemyViewModel : ObservableObject, INotifyPropertyChanged
-    {
-        [ObservableProperty] private string name;
-        [ObservableProperty] private string description;
-        [ObservableProperty] private string slug;
-        [ObservableProperty] private string size;
-        [ObservableProperty] private string type;
-        [ObservableProperty] private string subtype;
-        [ObservableProperty] private string group;
-        [ObservableProperty] private string alignment;
-        [ObservableProperty] private int armorClass;
-        [ObservableProperty] private string armorDescription;
-        [ObservableProperty] private int hitPoints;
-        [ObservableProperty] private string hitDice;
-        [ObservableProperty] private string speed;
-        [ObservableProperty] private int strength;
-        [ObservableProperty] private int dexterity;
-        [ObservableProperty] private int constitution;
-        [ObservableProperty] private int intelligence;
-        [ObservableProperty] private int wisdom;
-        [ObservableProperty] private int charisma;
-        [ObservableProperty] private int perception;
-        [ObservableProperty] private string skills;
-        [ObservableProperty] private string damageVulnerabilities;
-        [ObservableProperty] private string damageResistances;
-        [ObservableProperty] private string damageImmunities;
-        [ObservableProperty] private string conditionImmunities;
-        [ObservableProperty] private string senses;
-        [ObservableProperty] private string languages;
-        [ObservableProperty] private string challengeRating;
-        [ObservableProperty] private double challengeRatingValue;
+    [ObservableProperty] private string actionButtonText = "Создать";
 
-        public CreateEnemyViewModel()
+    [ObservableProperty] private int? armorClass;
+
+    [ObservableProperty] private ObservableCollection<Attack> attacks = new();
+
+    [ObservableProperty] private string challengeRating = string.Empty;
+
+    [ObservableProperty] private string description = string.Empty;
+
+    [ObservableProperty] private int? hitPoints;
+
+    [ObservableProperty] private Guid id;
+
+    [ObservableProperty] private bool isEditMode;
+
+    [ObservableProperty] private string name = string.Empty;
+
+    [ObservableProperty] private ObservableCollection<SpecialAbility> specialAbilities = new();
+
+    [ObservableProperty] private string title = "Создать врага";
+
+    [ObservableProperty] private string type = string.Empty;
+
+    public void ApplyQueryAttributes(IDictionary<string, object> query)
+    {
+        if (query.TryGetValue("Enemy", out var enemy))
         {
-            
+            if (enemy is Enemy existingEnemy)
+            {
+                IsEditMode = true;
+                Title = "Редактировать врага";
+                ActionButtonText = "Сохранить";
+
+                Id = existingEnemy.Id;
+                Name = existingEnemy.Name;
+                Type = existingEnemy.Type ?? string.Empty;
+                Description = existingEnemy.Description ?? string.Empty;
+                HitPoints = existingEnemy.HitPoints;
+                ArmorClass = existingEnemy.ArmorClass;
+                ChallengeRating = existingEnemy.ChallengeRating ?? string.Empty;
+                Attacks = new ObservableCollection<Attack>(existingEnemy.Attacks ?? new ObservableCollection<Attack>());
+                SpecialAbilities = new ObservableCollection<SpecialAbility>(existingEnemy.SpecialAbilities ??
+                                                                            new ObservableCollection<SpecialAbility>());
+            }
         }
-        
-        [RelayCommand]
-        private async Task CreateEnemyAsync()
+    }
+
+    [RelayCommand]
+    private async Task SaveAsync()
+    {
+        try
         {
             var enemy = new Enemy
             {
+                Id = IsEditMode ? Id : Guid.NewGuid(),
                 Name = Name,
-                Description = Description,
-                Slug = Slug,
-                Size = Size,
                 Type = Type,
-                Subtype = Subtype,
-                Group = Group,
-                Alignment = Alignment,
-                ArmorClass = ArmorClass,
-                ArmorDescription = ArmorDescription,
+                Description = Description,
                 HitPoints = HitPoints,
-                HitDice = HitDice,
-                Strength = Strength,
-                Dexterity = Dexterity,
-                Constitution = Constitution,
-                Intelligence = Intelligence,
-                Wisdom = Wisdom,
-                Charisma = Charisma,
-                Perception = Perception,
-                Senses = Senses,
-                Languages = Languages,
+                ArmorClass = ArmorClass,
                 ChallengeRating = ChallengeRating,
-                ChallengeRatingValue = ChallengeRatingValue,
-                DamageVulnerabilities = DamageVulnerabilities,
-                DamageResistances = DamageResistances,
-                DamageImmunities = DamageImmunities,
-                ConditionImmunities = ConditionImmunities
+                Attacks = Attacks,
+                SpecialAbilities = SpecialAbilities
             };
-            ApiHelper.Post<Enemy>(Serdeser.Serialize(enemy), "Enemy");
-            await Shell.Current.GoToAsync("..", true);
+
+            var json = JsonConvert.SerializeObject(enemy);
+            bool success;
+
+            if (IsEditMode)
+            {
+                success = ApiHelper.Put<Enemy>(json, "Enemy", enemy.Id);
+            }
+            else
+            {
+                success = ApiHelper.Post<Enemy>(json, "Enemy");
+            }
+
+            if (success)
+            {
+                await Shell.Current.GoToAsync("..");
+            }
+            else
+            {
+                var action = IsEditMode ? "обновить" : "создать";
+                await Shell.Current.DisplayAlert("Ошибка", $"Не удалось {action} врага", "OK");
+            }
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlert("Ошибка", ex.Message, "OK");
+        }
+    }
+
+    [RelayCommand]
+    private void AddAttack()
+    {
+        Attacks.Add(new Attack());
+    }
+
+    [RelayCommand]
+    private void DelAttack(Attack attack)
+    {
+        if (attack != null)
+        {
+            if (attack.Id != Guid.Empty)
+            {
+                ApiHelper.Delete<Attack>("Attack", attack.Id);
+            }
+
+            Attacks.Remove(attack);
+        }
+    }
+
+    [RelayCommand]
+    private void AddAbility()
+    {
+        SpecialAbilities.Add(new SpecialAbility());
+    }
+
+    [RelayCommand]
+    private void DelAbility(SpecialAbility ability)
+    {
+        if (ability != null)
+        {
+            if (ability.Id != Guid.Empty)
+            {
+                ApiHelper.Delete<SpecialAbility>("SpecialAbility", ability.Id);
+            }
+
+            SpecialAbilities.Remove(ability);
         }
     }
 }

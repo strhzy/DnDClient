@@ -1,5 +1,4 @@
 ﻿using DnDClient.ViewModels;
-using Microsoft.Maui.Controls;
 
 namespace DnDClient.Views
 {

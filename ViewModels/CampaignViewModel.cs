@@ -1,31 +1,31 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DnDClient.Models;
 using DnDClient.Services;
-using Newtonsoft.Json;
-using System.Collections.ObjectModel;
 using DnDClient.Views;
+using Newtonsoft.Json;
 
 namespace DnDClient.ViewModels;
 
 public partial class CampaignViewModel : ObservableObject
 {
     private readonly INavigation _navigation;
-    
-    [ObservableProperty] private Campaign campaign;
-
-    [ObservableProperty] private bool masterMode;
-
-    [ObservableProperty] private ObservableCollection<PlayerCharacter> players = new();
     [ObservableProperty] private ObservableCollection<PlayerCharacter> availableCharacters = new();
-    [ObservableProperty] private PlayerCharacter selectedCharacterToAdd;
-    [ObservableProperty] private ObservableCollection<StoryElement> stories = new();
+
+    [ObservableProperty] private Campaign campaign;
     [ObservableProperty] private ObservableCollection<Combat> combats = new();
     [ObservableProperty] private ObservableCollection<PlayerCharacter> filtredCharacters = new();
 
-    [ObservableProperty] private string newStoryName;
-    [ObservableProperty] private string newStoryDescription;
+    [ObservableProperty] private bool masterMode;
     [ObservableProperty] private string newCombatName;
+    [ObservableProperty] private string newStoryDescription;
+
+    [ObservableProperty] private string newStoryName;
+
+    [ObservableProperty] private ObservableCollection<PlayerCharacter> players = new();
+    [ObservableProperty] private PlayerCharacter selectedCharacterToAdd;
+    [ObservableProperty] private ObservableCollection<StoryElement> stories = new();
 
     public CampaignViewModel(Campaign? _campaign)
     {
@@ -42,19 +42,23 @@ public partial class CampaignViewModel : ObservableObject
     {
         Players = campaign.PlayerCharacters;
         var allChars = ApiHelper.Get<List<PlayerCharacter>>("PlayerCharacter") ?? new List<PlayerCharacter>();
-        AvailableCharacters = new ObservableCollection<PlayerCharacter>(allChars.Except(Players, new PlayerCharacterIdComparer()));
-        Stories = ApiHelper.Get<ObservableCollection<StoryElement>>("StoryElement?campaignId="+Campaign.Id.ToString());
-        Combats = ApiHelper.Get<ObservableCollection<Combat>>("Combat?campaignId="+Campaign.Id.ToString());
+        AvailableCharacters =
+            new ObservableCollection<PlayerCharacter>(allChars.Except(Players, new PlayerCharacterIdComparer()));
+        Stories = ApiHelper.Get<ObservableCollection<StoryElement>>("StoryElement?campaignId=" +
+                                                                    Campaign.Id.ToString());
+        Combats = ApiHelper.Get<ObservableCollection<Combat>>("Combat?campaignId=" + Campaign.Id.ToString());
         Campaign.Combats = Combats;
         Campaign.PlotItems = Stories;
     }
 
+    [RelayCommand]
     public void AddPlayerToCampaign()
     {
         if (SelectedCharacterToAdd != null)
         {
             var json = JsonConvert.SerializeObject(SelectedCharacterToAdd.Id);
             ApiHelper.Post<string>("", $"Campaign/{Campaign.Id}/add_char/{SelectedCharacterToAdd.Id}");
+            campaign.PlayerCharacters.Add(SelectedCharacterToAdd);
             LoadData();
         }
     }
@@ -83,7 +87,7 @@ public partial class CampaignViewModel : ObservableObject
             LoadData();
         }
     }
-    
+
     [RelayCommand]
     public void AddCombat()
     {
@@ -130,13 +134,22 @@ public partial class CampaignViewModel : ObservableObject
         };
         await _navigation.PushAsync(new CombatPage(combat, masterMode));
     }
-    
+
     [RelayCommand]
     public async Task ManageCombatParticipants(Combat combat)
     {
         if (combat != null)
         {
             await _navigation.PushAsync(new CombatParticipantsPage(combat));
+        }
+    }
+
+    [RelayCommand]
+    public async Task ManageEntities(Combat combat)
+    {
+        if (combat != null)
+        {
+            await _navigation.PushAsync(new EntityManagementPage());
         }
     }
 

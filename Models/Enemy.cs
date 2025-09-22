@@ -1,119 +1,84 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace DnDClient.Models;
 
 public partial class Enemy : ObservableObject
-    {
-        [Key]
-        [ObservableProperty]
-        private Guid id = Guid.NewGuid();
+{
+    [ObservableProperty] private ObservableCollection<Attack> actions = new();
 
-        [ObservableProperty]
-        private string? slug;
-        
-        [ObservableProperty]
-        private string name = string.Empty;
+    [ObservableProperty] private string? alignment;
 
-        [ObservableProperty]
-        private string? description;
+    [ObservableProperty] private int? armorClass;
 
-        [ObservableProperty]
-        private string? size;
+    [ObservableProperty] private string? armorDescription;
 
-        [ObservableProperty]
-        private string? type;
+    [ObservableProperty] private ObservableCollection<Attack> attacks;
 
-        [ObservableProperty]
-        private string? subtype;
+    [ObservableProperty] private ObservableCollection<Attack> bonusActions = new();
 
-        [ObservableProperty]
-        private string? group;
+    [ObservableProperty] private string? challengeRating;
 
-        [ObservableProperty]
-        private string? alignment;
+    [ObservableProperty] private double? challengeRatingValue;
 
-        [ObservableProperty]
-        private int? armorClass;
-        
-        [ObservableProperty]
-        private string? armorDescription;
+    [ObservableProperty] private int? charisma;
 
-        [ObservableProperty]
-        private int? hitPoints;
+    [ObservableProperty] private string? conditionImmunities;
 
-        [ObservableProperty]
-        private string? hitDice;
+    [ObservableProperty] private int? constitution;
 
-        [ObservableProperty]
-        private Dictionary<string, string>? speed;
+    [ObservableProperty] private string? damageImmunities;
 
-        [ObservableProperty]
-        private int? strength;
+    [ObservableProperty] private string? damageResistances;
 
-        [ObservableProperty]
-        private int? dexterity;
+    [ObservableProperty] private string? damageVulnerabilities;
 
-        [ObservableProperty]
-        private int? constitution;
+    [ObservableProperty] private string? description;
 
-        [ObservableProperty]
-        private int? intelligence;
+    [ObservableProperty] private int? dexterity;
 
-        [ObservableProperty]
-        private int? wisdom;
+    [ObservableProperty] private string? group;
 
-        [ObservableProperty]
-        private int? charisma;
+    [ObservableProperty] private string? hitDice;
 
-        [ObservableProperty]
-        private int? perception;
+    [ObservableProperty] private int? hitPoints;
 
-        [ObservableProperty]
-        private Dictionary<string, int>? skills;
+    [Key] [ObservableProperty] private Guid id = Guid.NewGuid();
 
-        [ObservableProperty]
-        private string? damageVulnerabilities;
+    [ObservableProperty] private int? intelligence;
 
-        [ObservableProperty]
-        private string? damageResistances;
+    [ObservableProperty] private string? languages;
 
-        [ObservableProperty]
-        private string? damageImmunities;
+    [ObservableProperty] private ObservableCollection<Attack> legendaryActions = new();
 
-        [ObservableProperty]
-        private string? conditionImmunities;
+    [ObservableProperty] private string? legendaryDescription;
 
-        [ObservableProperty]
-        private string? senses;
+    [ObservableProperty] private string name = string.Empty;
 
-        [ObservableProperty]
-        private string? languages;
+    [ObservableProperty] private int? perception;
 
-        [ObservableProperty]
-        private string? challengeRating;
+    [ObservableProperty] private ObservableCollection<Attack> reactions = new();
 
-        [ObservableProperty]
-        private double? challengeRatingValue;
+    [ObservableProperty] private string? senses;
 
-        [ObservableProperty]
-        private List<Attack> actions = new();
+    [ObservableProperty] private string? size;
 
-        [ObservableProperty]
-        private List<Attack> bonusActions = new();
+    [ObservableProperty] private Dictionary<string, int>? skills;
 
-        [ObservableProperty]
-        private List<Attack> reactions = new();
+    [ObservableProperty] private string? slug;
 
-        [ObservableProperty]
-        private string? legendaryDescription;
+    [ObservableProperty] private ObservableCollection<SpecialAbility> specialAbilities = new();
 
-        [ObservableProperty]
-        private List<Attack> legendaryActions = new();
+    [ObservableProperty] private Dictionary<string, string>? speed;
 
-        [ObservableProperty]
-        private List<SpecialAbility> specialAbilities = new();
+    [ObservableProperty] private ObservableCollection<string> spellObservableCollection = new();
 
-        [ObservableProperty]
-        private List<string> spellList = new();
-    }
+    [ObservableProperty] private int? strength;
+
+    [ObservableProperty] private string? subtype;
+
+    [ObservableProperty] private string? type;
+
+    [ObservableProperty] private int? wisdom;
+}
