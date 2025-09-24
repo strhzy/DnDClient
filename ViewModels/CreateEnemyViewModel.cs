@@ -47,7 +47,7 @@ public partial class CreateEnemyViewModel : ObservableObject, IQueryAttributable
                 Name = existingEnemy.Name;
                 Type = existingEnemy.Type ?? string.Empty;
                 Description = existingEnemy.Description ?? string.Empty;
-                HitPoints = existingEnemy.HitPoints;
+                HitPoints = existingEnemy.CurrentHitPoints;
                 ArmorClass = existingEnemy.ArmorClass;
                 ChallengeRating = existingEnemy.ChallengeRating ?? string.Empty;
                 Attacks = new ObservableCollection<Attack>(existingEnemy.Attacks ?? new ObservableCollection<Attack>());
@@ -68,7 +68,7 @@ public partial class CreateEnemyViewModel : ObservableObject, IQueryAttributable
                 Name = Name,
                 Type = Type,
                 Description = Description,
-                HitPoints = HitPoints,
+                CurrentHitPoints = HitPoints,
                 ArmorClass = ArmorClass,
                 ChallengeRating = ChallengeRating,
                 Attacks = Attacks,

@@ -4,8 +4,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="using:DnDClient.Views"
              x:Class="DnDClient.Views.CreateNPCPage"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              Title="{Binding Title}">
-
+    <ContentPage.Resources>
+        <Style x:Key="InvalidEntryStyle" TargetType="Entry">
+            <Setter Property="TextColor" Value="Red" />
+            <!-- Можно добавить другие свойства, например, BackgroundColor -->
+        </Style>
+        <Style x:Key="ValidEntryStyle" TargetType="Entry">
+            <Setter Property="TextColor" Value="Green" />
+        </Style>
+    </ContentPage.Resources>
     <ContentPage.Content>
         <ScrollView>
             <VerticalStackLayout Padding="20" Spacing="16">
@@ -13,8 +22,28 @@
                 <Entry Placeholder="Роль" Text="{Binding Role}" />
                 <Entry Placeholder="Раса" Text="{Binding Race}" />
                 <Entry Placeholder="Профессия" Text="{Binding Occupation}" />
-                <Entry Placeholder="Здоровье" Keyboard="Numeric" Text="{Binding HitPoints}" />
-                <Entry Placeholder="Класс брони" Keyboard="Numeric" Text="{Binding ArmorClass}" />
+                <Entry Placeholder="Здоровье" Keyboard="Numeric" Text="{Binding HitPoints}">
+                    <Entry.Behaviors>
+                        <toolkit:NumericValidationBehavior
+                            InvalidStyle="{StaticResource InvalidEntryStyle}"
+                            ValidStyle="{StaticResource ValidEntryStyle}"
+                            Flags="ValidateOnValueChanged"
+                            MinimumValue="1.0"
+                            MaximumValue="100.0"
+                            MaximumDecimalPlaces="2" />
+                    </Entry.Behaviors>
+                </Entry>
+                <Entry Placeholder="Класс брони" Keyboard="Numeric" Text="{Binding ArmorClass}">
+                    <Entry.Behaviors>
+                        <toolkit:NumericValidationBehavior
+                            InvalidStyle="{StaticResource InvalidEntryStyle}"
+                            ValidStyle="{StaticResource ValidEntryStyle}"
+                            Flags="ValidateOnValueChanged"
+                            MinimumValue="1.0"
+                            MaximumValue="100.0"
+                            MaximumDecimalPlaces="2" />
+                    </Entry.Behaviors>
+                </Entry>
                 <Editor Placeholder="Описание" HeightRequest="100" Text="{Binding Description}" />
                 <Editor Placeholder="Черты характера" HeightRequest="60" Text="{Binding PersonalityTraits}" />
                 <Editor Placeholder="Идеалы" HeightRequest="60" Text="{Binding Ideals}" />

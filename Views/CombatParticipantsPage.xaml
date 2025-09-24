@@ -150,6 +150,14 @@
                                                             BackgroundColor="#4CAF50"
                                                             TextColor="White"
                                                             WidthRequest="40" />
+
+                                                    <Button Text="🗑️"
+                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type local:CombatParticipantsPage}}, 
+                                                             Path=BindingContext.DeleteNPCCommand}"
+                                                            CommandParameter="{Binding}"
+                                                            BackgroundColor="#F44336"
+                                                            TextColor="White"
+                                                            WidthRequest="40" />
                                                 </StackLayout>
                                             </StackLayout>
                                         </Frame>
@@ -208,6 +216,14 @@
                                                                      Path=BindingContext.AddParticipantCommand}"
                                                             CommandParameter="{Binding}"
                                                             BackgroundColor="#4CAF50"
+                                                            TextColor="White"
+                                                            WidthRequest="40" />
+
+                                                    <Button Text="🗑️"
+                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type local:CombatParticipantsPage}}, 
+                                                             Path=BindingContext.DeleteEnemyCommand}"
+                                                            CommandParameter="{Binding}"
+                                                            BackgroundColor="#F44336"
                                                             TextColor="White"
                                                             WidthRequest="40" />
                                                 </StackLayout>

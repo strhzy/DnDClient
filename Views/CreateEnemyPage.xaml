@@ -4,15 +4,44 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="using:DnDClient.Views"
              x:Class="DnDClient.Views.CreateEnemyPage"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              Title="{Binding Title}">
-
+    <ContentPage.Resources>
+        <Style x:Key="InvalidEntryStyle" TargetType="Entry">
+            <Setter Property="TextColor" Value="Red" />
+            <!-- Можно добавить другие свойства, например, BackgroundColor -->
+        </Style>
+        <Style x:Key="ValidEntryStyle" TargetType="Entry">
+            <Setter Property="TextColor" Value="Green" />
+        </Style>
+    </ContentPage.Resources>
     <ContentPage.Content>
         <ScrollView>
             <VerticalStackLayout Padding="20" Spacing="16">
                 <Entry Placeholder="Имя" Text="{Binding Name}" />
                 <Entry Placeholder="Тип" Text="{Binding Type}" />
-                <Entry Placeholder="Здоровье" Keyboard="Numeric" Text="{Binding HitPoints}" />
-                <Entry Placeholder="Класс брони" Keyboard="Numeric" Text="{Binding ArmorClass}" />
+                <Entry Placeholder="Здоровье" Keyboard="Numeric" Text="{Binding HitPoints}">
+                    <Entry.Behaviors>
+                        <toolkit:NumericValidationBehavior
+                            InvalidStyle="{StaticResource InvalidEntryStyle}"
+                            ValidStyle="{StaticResource ValidEntryStyle}"
+                            Flags="ValidateOnValueChanged"
+                            MinimumValue="1.0"
+                            MaximumValue="100.0"
+                            MaximumDecimalPlaces="2" />
+                    </Entry.Behaviors>
+                </Entry>
+                <Entry Placeholder="Класс брони" Keyboard="Numeric" Text="{Binding ArmorClass}">
+                    <Entry.Behaviors>
+                        <toolkit:NumericValidationBehavior
+                            InvalidStyle="{StaticResource InvalidEntryStyle}"
+                            ValidStyle="{StaticResource ValidEntryStyle}"
+                            Flags="ValidateOnValueChanged"
+                            MinimumValue="1.0"
+                            MaximumValue="100.0"
+                            MaximumDecimalPlaces="2" />
+                    </Entry.Behaviors>
+                </Entry>
                 <Entry Placeholder="CR" Text="{Binding ChallengeRating}" />
                 <Editor Placeholder="Описание" HeightRequest="100" Text="{Binding Description}" />
 

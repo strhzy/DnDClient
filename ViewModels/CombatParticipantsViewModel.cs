@@ -199,8 +199,8 @@ public partial class CombatParticipantsViewModel : ObservableObject
         return new CombatParticipant
         {
             Name = enemy.Name,
-            CurrentHitPoints = enemy.HitPoints ?? 0,
-            MaxHitPoints = enemy.HitPoints ?? 0,
+            CurrentHitPoints = enemy.CurrentHitPoints ?? 0,
+            MaxHitPoints = enemy.CurrentHitPoints ?? 0,
             ArmorClass = enemy.ArmorClass ?? 10,
             Initiative = 0,
             IsActive = false,
@@ -271,7 +271,7 @@ public partial class CombatParticipantsViewModel : ObservableObject
     public async Task EditNPC(NPC npc)
     {
         if (npc == null) return;
-        var navigationParameter = new Dictionary<string, object>
+        var navigationParameter = new ShellNavigationQueryParameters
         {
             { "NPC", npc }
         };
@@ -364,6 +364,28 @@ public partial class CombatParticipantsViewModel : ObservableObject
         if (result)
         {
             LoadData();
+        }
+    }
+
+    [RelayCommand]
+    public void DeleteNPC(NPC npc)
+    {
+        if (npc == null) return;
+        var result = ApiHelper.Delete<NPC>("NPC", npc.Id);
+        if (result)
+        {
+            AvailableNPCs.Remove(npc);
+        }
+    }
+
+    [RelayCommand]
+    public void DeleteEnemy(Enemy enemy)
+    {
+        if (enemy == null) return;
+        var result = ApiHelper.Delete<Enemy>("Enemy", enemy.Id);
+        if (result)
+        {
+            AvailableEnemies.Remove(enemy);
         }
     }
 }

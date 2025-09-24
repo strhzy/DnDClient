@@ -205,7 +205,7 @@ public partial class EntityManagementViewModel : ObservableObject
             Id = enemy.Id,
             Name = enemy.Name,
             Description = enemy.Description,
-            HitPoints = enemy.HitPoints,
+            CurrentHitPoints = enemy.CurrentHitPoints,
             ArmorClass = enemy.ArmorClass,
             SpecialAbilities =
                 new ObservableCollection<SpecialAbility>(enemy.SpecialAbilities ??

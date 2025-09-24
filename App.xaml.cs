@@ -1,10 +1,14 @@
-﻿namespace DnDClient;
+﻿using DnDClient.Views;
+
+namespace DnDClient;
 
 public partial class App : Application
 {
     public App()
     {
         InitializeComponent();
+        Routing.RegisterRoute("CreateNPCPage", typeof(CreateNPCPage));
+        Routing.RegisterRoute("CreateEnemyPage", typeof(CreateEnemyPage));
         MainPage = new AppShell();
     }
 

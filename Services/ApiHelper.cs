@@ -1,7 +1,10 @@
 ﻿using System.Net;
 using System.Text;
-using Windows.Storage;
 using Newtonsoft.Json;
+using Environment = Android.OS.Environment;
+#if WINDOWS
+using Windows.Storage;
+#endif
 
 namespace DnDClient.Services;
 
@@ -124,8 +127,8 @@ public static class ApiHelper
                     return;
                 }
 
-                filePath = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath,
-                    Android.OS.Environment.DirectoryDownloads, fileName);
+                filePath = Path.Combine(Environment.ExternalStorageDirectory.AbsolutePath,
+                    Environment.DirectoryDownloads, fileName);
                 using var fileStream = File.Create(filePath);
                 await stream.CopyToAsync(fileStream);
 #elif WINDOWS

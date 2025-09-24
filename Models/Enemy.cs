@@ -28,6 +28,8 @@ public partial class Enemy : ObservableObject
 
     [ObservableProperty] private int? constitution;
 
+    [ObservableProperty] private int? currentHitPoints;
+
     [ObservableProperty] private string? damageImmunities;
 
     [ObservableProperty] private string? damageResistances;
@@ -41,8 +43,6 @@ public partial class Enemy : ObservableObject
     [ObservableProperty] private string? group;
 
     [ObservableProperty] private string? hitDice;
-
-    [ObservableProperty] private int? hitPoints;
 
     [Key] [ObservableProperty] private Guid id = Guid.NewGuid();
 
