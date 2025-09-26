@@ -1,10 +1,11 @@
-﻿using System.Net;
-using System.Text;
-using Newtonsoft.Json;
+﻿#if ANDROID
 using Environment = Android.OS.Environment;
-#if WINDOWS
+#elif WINDOWS
 using Windows.Storage;
 #endif
+using System.Net;
+using System.Text;
+using Newtonsoft.Json;
 
 namespace DnDClient.Services;
 

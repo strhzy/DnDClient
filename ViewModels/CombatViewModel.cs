@@ -1,18 +1,17 @@
 ﻿using System.Collections.ObjectModel;
+using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DnDClient.Models;
 using DnDClient.Services;
-using DnDClient.Views;
-using Microsoft.AspNetCore.SignalR.Client;
 
 namespace DnDClient.ViewModels;
 
 public partial class CombatViewModel : ObservableObject, IAsyncDisposable
 {
     private CancellationTokenSource? _cts;
+    private Task? _listenTask;
 
-    private HubConnection? _hubConnection;
     [ObservableProperty] private int attackDamage;
     [ObservableProperty] private Combat combat;
     [ObservableProperty] private ObservableCollection<CombatLog> combatLogs = new();
@@ -41,102 +40,64 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
         await DisconnectAsync();
     }
 
-    public async Task ConnectSignalRAsync()
+    public async Task ConnectAsync()
     {
         if (Combat == null) return;
 
         _cts = new CancellationTokenSource();
 
-        _hubConnection = new HubConnectionBuilder()
-            .WithUrl($"https://localhost:5228/api/combathub?combatId={Combat.Id}")
-            .WithAutomaticReconnect()
-            .Build();
+        var client = new HttpClient();
+        var stream = await client.GetStreamAsync($"http://localhost:5000/api/combat/stream/{Combat.Id}", _cts.Token);
+        var reader = new StreamReader(stream);
 
-        SetupMessageHandlers();
-
-        try
+        _listenTask = Task.Run(async () =>
         {
-            await _hubConnection.StartAsync(_cts.Token);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Connection failed: {ex.Message}");
-        }
-    }
-
-    [RelayCommand]
-    public async Task OpenCombatAsync(Combat combat)
-    {
-        if (combat == null) return;
-        var navParam = new Dictionary<string, object>
-        {
-            { "Combat", combat },
-            { "MasterMode", masterMode }
-        };
-        await Shell.Current.GoToAsync(nameof(CombatPage), navParam);
-    }
-
-    private void SetupMessageHandlers()
-    {
-        if (_hubConnection == null) return;
-
-        _hubConnection.On<CombatLog>("ReceivePlayerMove", log =>
-        {
-            if (MasterMode)
+            while (!_cts.Token.IsCancellationRequested)
             {
-                CombatLogs.Add(log);
+                var line = await reader.ReadLineAsync();
+                if (string.IsNullOrWhiteSpace(line)) continue;
+                if (!line.StartsWith("data:")) continue;
+
+                var json = line.Substring(5).Trim();
+                try
+                {
+                    var evt = JsonSerializer.Deserialize<CombatEvent>(json);
+                    if (evt == null) continue;
+
+                    switch (evt.EventType)
+                    {
+                        case "PlayerMove":
+                            if (MasterMode && evt.Log != null) CombatLogs.Add(evt.Log);
+                            break;
+                        case "MasterConfirm":
+                            if (evt.Combat != null) Combat = evt.Combat;
+                            if (evt.Log != null && !CombatLogs.Contains(evt.Log)) CombatLogs.Add(evt.Log);
+                            break;
+                        case "NpcMove":
+                        case "EnemyMove":
+                            if (evt.Log != null && !CombatLogs.Contains(evt.Log)) CombatLogs.Add(evt.Log);
+                            if (evt.Combat != null) Combat = evt.Combat;
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Parse error: {ex.Message}");
+                }
             }
-        });
-
-        _hubConnection.On<Combat, CombatLog>("ReceiveMasterConfirm", (updatedCombat, log) =>
-        {
-            Combat = updatedCombat;
-            if (!CombatLogs.Contains(log))
-            {
-                CombatLogs.Add(log);
-            }
-        });
-
-        _hubConnection.On<Combat>("ReceiveCombatUpdate", updatedCombat => { Combat = updatedCombat; });
-
-        _hubConnection.On<bool>("ReceiveTurnUpdate", isPlayerTurn => { IsPlayerTurn = isPlayerTurn; });
-
-        _hubConnection.On<Combat, CombatLog>("ReceiveNpcMove", (updatedCombat, log) =>
-        {
-            Combat = updatedCombat;
-            if (!CombatLogs.Contains(log))
-            {
-                CombatLogs.Add(log);
-            }
-        });
-
-        _hubConnection.On<Combat, CombatLog>("ReceiveEnemyMove", (updatedCombat, log) =>
-        {
-            Combat = updatedCombat;
-            if (!CombatLogs.Contains(log))
-            {
-                CombatLogs.Add(log);
-            }
-        });
-
-        _hubConnection.Closed += async (error) =>
-        {
-            await Task.Delay(5000);
-            await ConnectSignalRAsync();
-        };
-
-        _hubConnection.Reconnected += (connectionId) => { return Task.CompletedTask; };
+        }, _cts.Token);
     }
 
     [RelayCommand]
     public async Task SendPlayerActionAsync()
     {
         if (!IsPlayerTurn || Combat == null || SelectedTarget == null ||
-            string.IsNullOrEmpty(SelectedActionType) || _hubConnection == null)
+            string.IsNullOrEmpty(SelectedActionType))
             return;
 
         var log = new CombatLog
         {
+            CombatId = Combat.Id,
             Type = SelectedActionType,
             SourceId = Combat.CurrentParticipant.Id,
             TargetId = SelectedTarget.Id,
@@ -146,51 +107,34 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
                       $" ({(SelectedActionType == "attack" ? "урон" : "лечение")}: {AttackDamage})"
         };
 
-        try
-        {
-            await _hubConnection.InvokeAsync("SendPlayerMove", log, _cts?.Token ?? default);
-            ApiHelper.Post<CombatLog>(Serdeser.Serialize(log), "CombatLog");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Send error: {ex.Message}");
-        }
+        ApiHelper.Post<CombatLog>(Serdeser.Serialize(log), "combat/player-move");
     }
 
     [RelayCommand]
     public async Task ConfirmActionAsync(CombatLog log)
     {
-        if (!MasterMode || Combat == null || _hubConnection == null) return;
+        if (!MasterMode || Combat == null) return;
 
-        var source = Combat.Participants.FirstOrDefault(p => p.Id == log.SourceId);
-        var target = Combat.Participants.FirstOrDefault(p => p.Id == log.TargetId);
-        if (source == null || target == null) return;
-
-        int damage = log.Damage ?? 0;
-        if (log.Type == "attack")
-            target.CurrentHitPoints = Math.Max(0, target.CurrentHitPoints - damage);
-        else if (log.Type == "heal")
-            target.CurrentHitPoints += damage;
-
-        try
+        var request = new
         {
-            await _hubConnection.InvokeAsync("ConfirmAction", Combat, log, _cts?.Token ?? default);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Confirm error: {ex.Message}");
-        }
+            CombatId = Combat.Id,
+            Combat,
+            Log = log
+        };
+
+        ApiHelper.Post<object>(Serdeser.Serialize(request), "combat/master-confirm");
     }
 
     [RelayCommand]
     public async Task SendNpcActionAsync()
     {
         if (!MasterMode || Combat == null || SelectedNpc == null ||
-            string.IsNullOrEmpty(SelectedActionType) || _hubConnection == null)
+            string.IsNullOrEmpty(SelectedActionType))
             return;
 
         var log = new CombatLog
         {
+            CombatId = Combat.Id,
             Type = SelectedActionType,
             SourceId = SelectedNpc.Id,
             TargetId = SelectedTarget.Id,
@@ -200,26 +144,19 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
                       $" ({(SelectedActionType == "attack" ? "урон" : "лечение")}: {AttackDamage})"
         };
 
-        try
-        {
-            await _hubConnection.InvokeAsync("SendNpcMove", log, _cts?.Token ?? default);
-            ApiHelper.Post<CombatLog>(Serdeser.Serialize(log), "CombatLog");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Send NPC error: {ex.Message}");
-        }
+        ApiHelper.Post<CombatLog>(Serdeser.Serialize(log), "combat/npc-move");
     }
 
     [RelayCommand]
     public async Task SendEnemyActionAsync()
     {
         if (!MasterMode || Combat == null || SelectedEnemy == null ||
-            string.IsNullOrEmpty(SelectedActionType) || _hubConnection == null)
+            string.IsNullOrEmpty(SelectedActionType))
             return;
 
         var log = new CombatLog
         {
+            CombatId = Combat.Id,
             Type = SelectedActionType,
             SourceId = SelectedEnemy.Id,
             TargetId = SelectedTarget.Id,
@@ -229,46 +166,20 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
                       $" ({(SelectedActionType == "attack" ? "урон" : "лечение")}: {AttackDamage})"
         };
 
-        try
-        {
-            await _hubConnection.InvokeAsync("SendEnemyMove", log, _cts?.Token ?? default);
-            ApiHelper.Post<CombatLog>(Serdeser.Serialize(log), "CombatLog");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Send Enemy error: {ex.Message}");
-        }
-    }
-
-    [RelayCommand]
-    public void ManageParticipants()
-    {
-        var vm = new CombatParticipantsViewModel(Combat);
-        var page = new CombatParticipantsPage(Combat);
-        Shell.Current.Navigation.PushAsync(page);
-    }
-
-    public ObservableCollection<CombatParticipant> GetNpcs()
-    {
-        return new ObservableCollection<CombatParticipant>(
-            Combat.Participants.Where(p => p.Type == ParticipantType.Npc));
-    }
-
-    public ObservableCollection<CombatParticipant> GetEnemies()
-    {
-        return new ObservableCollection<CombatParticipant>(
-            Combat.Participants.Where(p => p.Type == ParticipantType.Enemy));
+        ApiHelper.Post<CombatLog>(Serdeser.Serialize(log), "combat/enemy-move");
     }
 
     public async Task DisconnectAsync()
     {
-        if (_hubConnection != null)
-        {
-            await _hubConnection.StopAsync();
-            await _hubConnection.DisposeAsync();
-        }
-
         _cts?.Cancel();
+        if (_listenTask != null) await _listenTask;
         _cts?.Dispose();
     }
+}
+
+public class CombatEvent
+{
+    public string EventType { get; set; }
+    public Combat Combat { get; set; }
+    public CombatLog Log { get; set; }
 }
