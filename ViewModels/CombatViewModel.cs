@@ -17,6 +17,7 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
     [ObservableProperty] private ObservableCollection<CombatLog> combatLogs = new();
     [ObservableProperty] private bool isPlayerTurn;
     [ObservableProperty] private bool masterMode;
+    [ObservableProperty] private ObservableCollection<CombatLog> pendingLogs = new();
     [ObservableProperty] private string selectedActionType;
     [ObservableProperty] private Attack selectedAttack;
     [ObservableProperty] private CombatParticipant selectedEnemy;
@@ -66,12 +67,18 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
 
                     switch (evt.EventType)
                     {
-                        case "PlayerMove":
-                            if (MasterMode && evt.Log != null) CombatLogs.Add(evt.Log);
+                        case "PendingMove":
+                            if (MasterMode && evt.Log != null) PendingLogs.Add(evt.Log);
                             break;
+
                         case "MasterConfirm":
                             if (evt.Combat != null) Combat = evt.Combat;
-                            if (evt.Log != null && !CombatLogs.Contains(evt.Log)) CombatLogs.Add(evt.Log);
+                            if (evt.Log != null)
+                            {
+                                if (!CombatLogs.Contains(evt.Log)) CombatLogs.Add(evt.Log);
+                                PendingLogs.Remove(evt.Log);
+                            }
+
                             break;
                         case "NpcMove":
                         case "EnemyMove":

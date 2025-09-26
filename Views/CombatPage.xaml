@@ -50,6 +50,24 @@
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </StackLayout>
+                <StackLayout Grid.Row="1" Grid.Column="0" Padding="10" IsVisible="{Binding MasterMode}">
+                    <Label Text="Ожидающие ходы" FontAttributes="Bold" />
+                    <CollectionView ItemsSource="{Binding PendingLogs}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame Margin="2" Padding="5" BorderColor="Gray">
+                                    <StackLayout>
+                                        <Label Text="{Binding Message}" />
+                                        <Button Text="Подтвердить"
+                                                Command="{Binding BindingContext.ConfirmActionCommand, Source={x:Reference Name=CombatPage}}"
+                                                CommandParameter="{Binding .}" />
+                                    </StackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </StackLayout>
+
 
                 <!-- Участники боя -->
                 <StackLayout Grid.Column="1" Grid.ColumnSpan="2" Padding="10">
