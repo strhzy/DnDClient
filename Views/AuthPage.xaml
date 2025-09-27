@@ -5,7 +5,7 @@
              x:Class="DnDClient.Views.AuthPage">
     <ContentPage.Content>
         <VerticalStackLayout Padding="25" Spacing="10">
-            <Entry Placeholder="Эл.почта" Text="{Binding Email}" />
+            <Entry Placeholder="Имя пользователя" Text="{Binding Email}" />
             <Entry Placeholder="Пароль" IsPassword="True" Text="{Binding Password}" />
             <Button Text="Вход" Command="{Binding LoginCommand}" />
             <Button Text="Регистрация" Command="{Binding RegisterCommand}" />
