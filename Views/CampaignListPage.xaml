@@ -6,15 +6,16 @@
              xmlns:vm="using:DnDClient.ViewModels"
              x:Class="DnDClient.Views.CampaignListPage">
     <ContentPage.Content>
-        <VerticalStackLayout>
-            <Button Text="Добавить кампанию" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CampaignListViewModel}}, Path=AddCampaignCommand}"/>
-            <CollectionView ItemsSource="{Binding Campaigns}">
+        <Grid RowDefinitions="Auto,*">
+            <Button Grid.Row="0" Text="Добавить кампанию"
+                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CampaignListViewModel}}, Path=AddCampaignCommand}" />
+            <CollectionView Grid.Row="1" ItemsSource="{Binding Campaigns}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <cards:CampCard BindingContext="{Binding .}" />
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-        </VerticalStackLayout>
+        </Grid>
     </ContentPage.Content>
 </ContentPage>

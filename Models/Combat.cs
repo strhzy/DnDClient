@@ -13,7 +13,7 @@ public partial class Combat : ObservableObject
     [ForeignKey("Campaign")] [ObservableProperty]
     private Guid campaignId;
 
-    [JsonIgnore] [ObservableProperty] private ObservableCollection<CombatLog>? combatLogs;
+    [JsonIgnore] [ObservableProperty] private ObservableCollection<CombatLog>? combatLogs = new();
 
     [NotMapped] [ObservableProperty] private CombatParticipant? currentParticipant;
 

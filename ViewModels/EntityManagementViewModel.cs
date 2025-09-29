@@ -36,10 +36,10 @@ public partial class EntityManagementViewModel : ObservableObject
     public void LoadData()
     {
         Npcs = new ObservableCollection<NPC>(
-            ApiHelper.Get<List<NPC>>("NPC") ?? new List<NPC>());
+            ApiHelper.Get<ObservableCollection<NPC>>("NPC") ?? new ObservableCollection<NPC>());
 
         Enemies = new ObservableCollection<Enemy>(
-            ApiHelper.Get<List<Enemy>>("Enemy") ?? new List<Enemy>());
+            ApiHelper.Get<ObservableCollection<Enemy>>("Enemy") ?? new ObservableCollection<Enemy>());
     }
 
     // [RelayCommand]
@@ -94,6 +94,7 @@ public partial class EntityManagementViewModel : ObservableObject
     [RelayCommand]
     public void CreateNPC()
     {
+        NewNPC.Attacks = new ObservableCollection<Attack>();
         var json = JsonConvert.SerializeObject(NewNPC);
         var success = ApiHelper.Post<NPC>(json, "NPC");
 
@@ -138,6 +139,7 @@ public partial class EntityManagementViewModel : ObservableObject
     [RelayCommand]
     public void SaveNPCChanges()
     {
+        NewNPC.Attacks = new ObservableCollection<Attack>();
         if (NewNPC == null) return;
         var json = JsonConvert.SerializeObject(NewNPC);
         var result = ApiHelper.Put<NPC>(json, "NPC", NewNPC.Id);
@@ -170,6 +172,7 @@ public partial class EntityManagementViewModel : ObservableObject
     [RelayCommand]
     public void CreateEnemy()
     {
+        NewEnemy.Attacks = new ObservableCollection<Attack>();
         var json = JsonConvert.SerializeObject(NewEnemy);
         var success = ApiHelper.Post<Enemy>(json, "Enemy");
 
@@ -217,6 +220,7 @@ public partial class EntityManagementViewModel : ObservableObject
     [RelayCommand]
     public void SaveEnemyChanges()
     {
+        NewEnemy.Attacks = new ObservableCollection<Attack>();
         if (NewEnemy == null) return;
         var json = JsonConvert.SerializeObject(NewEnemy);
         var result = ApiHelper.Put<Enemy>(json, "Enemy", NewEnemy.Id);

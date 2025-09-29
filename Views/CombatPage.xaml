@@ -23,7 +23,7 @@
 
             <!-- Информация о текущем ходе -->
             <StackLayout Grid.Row="0" Grid.ColumnSpan="2" Padding="10">
-                <Button Text="Управлять участниками" Command="{Binding ManageParticipantsCommand}"></Button>
+                <Button Text="Управлять участниками" Command="{Binding ManageParticipantsCommand}" CommandParameter=""></Button>
                 <Label Text="Раунд:" FontAttributes="Bold" />
                 <Label Text="{Binding Combat.CurrentRound}" />
                 <Label Text="Текущий ходящий:" FontAttributes="Bold" />

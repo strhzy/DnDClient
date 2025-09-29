@@ -44,9 +44,8 @@ public partial class CampaignViewModel : ObservableObject
         var allChars = ApiHelper.Get<List<PlayerCharacter>>("PlayerCharacter") ?? new List<PlayerCharacter>();
         AvailableCharacters =
             new ObservableCollection<PlayerCharacter>(allChars.Except(Players, new PlayerCharacterIdComparer()));
-        Stories = ApiHelper.Get<ObservableCollection<StoryElement>>("StoryElement?campaignId=" +
-                                                                    Campaign.Id.ToString());
-        Combats = ApiHelper.Get<ObservableCollection<Combat>>("Combat?campaignId=" + Campaign.Id.ToString());
+        Stories = ApiHelper.Get<ObservableCollection<StoryElement>>("StoryElement?campaignId=" + Campaign.Id);
+        Combats = ApiHelper.Get<ObservableCollection<Combat>>("Combat?campaignId=" + Campaign.Id);
         Campaign.Combats = Combats;
         Campaign.PlotItems = Stories;
     }
@@ -132,24 +131,24 @@ public partial class CampaignViewModel : ObservableObject
             { "Combat", combat },
             { "MasterMode", masterMode }
         };
-        await _navigation.PushAsync(new CombatPage(combat, masterMode));
+        await Shell.Current.Navigation.PushAsync(new CombatPage(combat, masterMode));
     }
 
     [RelayCommand]
     public async Task ManageCombatParticipants(Combat combat)
     {
-        if (combat != null)
+        if (combat != null && Shell.Current.Navigation.NavigationStack.LastOrDefault() is not CombatParticipantsPage)
         {
-            await _navigation.PushAsync(new CombatParticipantsPage(combat));
+            await Shell.Current.Navigation.PushAsync(new CombatParticipantsPage(combat));
         }
     }
 
     [RelayCommand]
-    public async Task ManageEntities(Combat combat)
+    public async Task ManageEntities()
     {
-        if (combat != null)
+        if (Shell.Current.Navigation.NavigationStack.LastOrDefault() is not EntityManagementPage)
         {
-            await _navigation.PushAsync(new EntityManagementPage());
+            await Shell.Current.Navigation.PushAsync(new EntityManagementPage());
         }
     }
 

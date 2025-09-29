@@ -8,14 +8,14 @@
         <viewModels:ProfileViewModel />
     </ContentPage.BindingContext>
     <ContentPage.Content>
-        <Grid RowDefinitions="*,*,*,*,*">
-            <Entry Placeholder="Имя пользователя" Text="{Binding NewUsername}" Grid.Row="0"></Entry>
-            <Button Text="Сменить имя пользователя" Grid.Row="1" Command="{Binding ChangeUsernameCommand}" />
-            <Entry Placeholder="Новый пароль" Grid.Row="2" IsPassword="True" Text="{Binding NewPassword}"></Entry>
-            <Entry Placeholder="Подтверрждение нового пароля" Grid.Row="3" IsPassword="True"
+        <VerticalStackLayout>
+            <Entry Placeholder="Имя пользователя" Text="{Binding NewUsername}"></Entry>
+            <Button Text="Сменить имя пользователя" Command="{Binding ChangeUsernameCommand}" />
+            <Entry Placeholder="Новый пароль" IsPassword="True" Text="{Binding NewPassword}"></Entry>
+            <Entry Placeholder="Подтверрждение нового пароля" IsPassword="True"
                    Text="{Binding CheckNewPassword}">
             </Entry>
-            <Button Text="Сменить пароль" Grid.Row="4" Command="{Binding ChangePasswordCommand}"></Button>
-        </Grid>
+            <Button Text="Сменить пароль" Command="{Binding ChangePasswordCommand}"></Button>
+        </VerticalStackLayout>
     </ContentPage.Content>
 </ContentPage>

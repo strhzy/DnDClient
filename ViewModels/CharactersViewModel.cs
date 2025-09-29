@@ -13,6 +13,13 @@ public partial class CharactersViewModel : ObservableObject
 
     [ObservableProperty] private ObservableCollection<PlayerCharacter> characters;
 
+    public CharactersViewModel(INavigation navigation)
+    {
+        _navigation = navigation;
+        string userid = Preferences.Get("current_user_id", "default");
+        Characters = ApiHelper.Get<ObservableCollection<PlayerCharacter>>("PlayerCharacter?userId=" + userid);
+    }
+
     [RelayCommand]
     private async Task TapCard(PlayerCharacter character)
     {
@@ -51,7 +58,7 @@ public partial class CharactersViewModel : ObservableObject
             $"Вы уверены, что хотите удалить персонажа {character.Name}?",
             "Да",
             "Нет");
-        
+
         if (confirm)
         {
             if (ApiHelper.Delete<PlayerCharacter>("PlayerCharacter", character.Id))
@@ -80,7 +87,6 @@ public partial class CharactersViewModel : ObservableObject
             var filePath = await ApiHelper.DownloadFileAsync("PlayerCharacter", $"{character.Name}.pdf", character.Id);
             if (filePath != null)
             {
-                // Файл успешно сохранён, можно что-то с ним сделать, например, открыть
                 await Launcher.OpenAsync(new OpenFileRequest { File = new ReadOnlyFile(filePath) });
             }
         }
@@ -88,12 +94,5 @@ public partial class CharactersViewModel : ObservableObject
         {
             await Application.Current.MainPage.DisplayAlert("Ошибка", ex.ToString(), "OK");
         }
-    }
-
-    public CharactersViewModel(INavigation navigation)
-    {
-        _navigation = navigation;
-        string userid = Preferences.Get("current_user_id", "default");
-        Characters = ApiHelper.Get<ObservableCollection<PlayerCharacter>>("PlayerCharacter?query=" + userid);
     }
 }

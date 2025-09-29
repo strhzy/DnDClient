@@ -3,18 +3,17 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:cards="clr-namespace:DnDClient.Views.Cards"
-             xmlns:vm="clr-namespace:DnDClient.ViewModels"
              x:Class="DnDClient.Views.CharactersPage">
     <ContentPage.Content>
-        <StackLayout Orientation="Vertical">
-            <Button Text="Добавить персонажа" Command="{Binding AddCommand}"></Button>
-            <CollectionView ItemsSource="{Binding Characters}">
+        <Grid RowDefinitions="Auto,*">
+            <Button Text="Добавить персонажа" Grid.Row="0" Command="{Binding AddCommand}"></Button>
+            <CollectionView Grid.Row="1" ItemsSource="{Binding Characters}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <cards:CharCard BindingContext="{Binding .}" />
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-        </StackLayout>
+        </Grid>
     </ContentPage.Content>
 </ContentPage>

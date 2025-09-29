@@ -12,7 +12,7 @@ namespace DnDClient.Services;
 public static class ApiHelper
 {
     //private static readonly string _url = "http://192.168.1.167:5000/api";
-    private static readonly string _url = "http://localhost:5000/api";
+    private static readonly string _url = "http://strhzy.ru:5100/api";
 
     public static T? Get<T>(string model, Guid id = default)
     {
