@@ -3,6 +3,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:conv="clr-namespace:DnDClient.Converters"
+             xmlns:vm="clr-namespace:DnDClient.ViewModels"
              x:Class="DnDClient.Views.CombatPage">
     <ContentPage.Resources>
         <conv:NpcFilterConverter x:Key="NpcFilterConverter" />
@@ -36,11 +37,15 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
                 <!-- Логи боя -->
-                <StackLayout Grid.Column="0" Grid.ColumnSpan="2" Padding="10">
-                    <Label Text="Логи боя" FontAttributes="Bold" />
-                    <CollectionView ItemsSource="{Binding CombatLogs}">
+                <Grid Grid.Column="0" Padding="10" RowDefinitions="Auto,*">
+                    <Label Text="Логи боя" FontAttributes="Bold" Grid.Row="0"/>
+                    <CollectionView ItemsSource="{Binding CombatLogs}" Grid.Row="1">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <Frame Margin="2" Padding="5" BorderColor="Gray">
@@ -49,10 +54,10 @@
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
-                </StackLayout>
-                <StackLayout Grid.Row="1" Grid.Column="0" Padding="10" IsVisible="{Binding MasterMode}">
-                    <Label Text="Ожидающие ходы" FontAttributes="Bold" />
-                    <CollectionView ItemsSource="{Binding PendingLogs}">
+                </Grid>
+                <Grid Grid.Row="1" Grid.Column="0" Padding="10" IsVisible="{Binding MasterMode}" RowDefinitions="Auto,*">
+                    <Label Text="Ожидающие ходы" FontAttributes="Bold" Grid.Row="0"/>
+                    <CollectionView ItemsSource="{Binding PendingLogs}" Grid.Row="1">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <Frame Margin="2" Padding="5" BorderColor="Gray">
@@ -66,13 +71,12 @@
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
-                </StackLayout>
-
-
+                </Grid>
+                
                 <!-- Участники боя -->
-                <StackLayout Grid.Column="1" Grid.ColumnSpan="2" Padding="10">
-                    <Label Text="Участники" FontAttributes="Bold" />
-                    <CollectionView ItemsSource="{Binding Combat.Participants}">
+                <Grid Grid.Column="1" Grid.RowSpan="2" Padding="10" RowDefinitions="Auto,*">
+                    <Label Text="Участники" Grid.Row="0" FontAttributes="Bold" />
+                    <CollectionView Grid.Row="1" ItemsSource="{Binding Combat.Participants}">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <Frame Margin="2" Padding="5" BorderColor="Gray">
@@ -85,7 +89,7 @@
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
-                </StackLayout>
+                </Grid>
             </Grid>
 
             <!-- UI для игрока -->

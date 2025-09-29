@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DnDClient.Models;
 using DnDClient.Services;
+using DnDClient.Views;
 
 namespace DnDClient.ViewModels;
 
@@ -34,6 +35,8 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
             CombatLogs = ApiHelper.Get<ObservableCollection<CombatLog>>("CombatLog");
             combat.CombatLogs = CombatLogs;
         }
+
+        ConnectAsync();
     }
 
     public async ValueTask DisposeAsync()
@@ -46,54 +49,164 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
         if (Combat == null) return;
 
         _cts = new CancellationTokenSource();
+        int retryCount = 0;
+        const int maxRetries = int.MaxValue; // Retry indefinitely, adjust if needed
+        const int retryDelaySeconds = 5;
 
-        var client = new HttpClient();
-        var stream = await client.GetStreamAsync($"http://localhost:5000/api/combat/stream/{Combat.Id}", _cts.Token);
-        var reader = new StreamReader(stream);
-
-        _listenTask = Task.Run(async () =>
+        while (!_cts.Token.IsCancellationRequested && retryCount < maxRetries)
         {
-            while (!_cts.Token.IsCancellationRequested)
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(
+                new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("text/event-stream"));
+            client.Timeout = TimeSpan.FromSeconds(30); // Set timeout for HTTP request
+
+            Console.WriteLine($"Подключаюсь к SSE (Попытка {retryCount + 1})...");
+
+            try
             {
-                var line = await reader.ReadLineAsync();
-                if (string.IsNullOrWhiteSpace(line)) continue;
-                if (!line.StartsWith("data:")) continue;
+                using var response = await client.GetAsync(
+                    $"http://strhzy.ru:5100/api/Combat/{Combat.Id}/stream",
+                    HttpCompletionOption.ResponseHeadersRead,
+                    _cts.Token);
 
-                var json = line.Substring(5).Trim();
-                try
+                response.EnsureSuccessStatusCode();
+
+                var stream = await response.Content.ReadAsStreamAsync(_cts.Token);
+                var reader = new StreamReader(stream, System.Text.Encoding.UTF8);
+
+                Console.WriteLine("Поток подключен, слушаю события...");
+
+                _listenTask = Task.Run(async () =>
                 {
-                    var evt = JsonSerializer.Deserialize<CombatEvent>(json);
-                    if (evt == null) continue;
-
-                    switch (evt.EventType)
+                    try
                     {
-                        case "PendingMove":
-                            if (MasterMode && evt.Log != null) PendingLogs.Add(evt.Log);
-                            break;
+                        while (!_cts.Token.IsCancellationRequested)
+                        {
+                            var readTask = reader.ReadLineAsync();
+                            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(15), _cts.Token); // Increased timeout for SSE keep-alive
 
-                        case "MasterConfirm":
-                            if (evt.Combat != null) Combat = evt.Combat;
-                            if (evt.Log != null)
+                            var completedTask = await Task.WhenAny(readTask, timeoutTask);
+                            if (completedTask == timeoutTask)
                             {
-                                if (!CombatLogs.Contains(evt.Log)) CombatLogs.Add(evt.Log);
-                                PendingLogs.Remove(evt.Log);
+                                Console.WriteLine("Таймаут чтения строки, проверка соединения...");
+                                break; // Trigger reconnection on timeout
                             }
 
-                            break;
-                        case "NpcMove":
-                        case "EnemyMove":
-                            if (evt.Log != null && !CombatLogs.Contains(evt.Log)) CombatLogs.Add(evt.Log);
-                            if (evt.Combat != null) Combat = evt.Combat;
-                            break;
+                            var line = await readTask;
+                            if (line == null)
+                            {
+                                Console.WriteLine("Соединение закрыто сервером, попытка переподключения...");
+                                break; // Trigger reconnection
+                            }
+
+                            if (string.IsNullOrWhiteSpace(line))
+                            {
+                                Console.WriteLine("Получена пустая строка, возможно keep-alive...");
+                                continue; // Handle SSE delimiter or keep-alive
+                            }
+
+                            Console.WriteLine($"[RAW LINE]: '{line}' (Length: {line.Length})");
+
+                            if (line.StartsWith("data:"))
+                            {
+                                var json = line.Substring(5).Trim();
+                                if (!string.IsNullOrEmpty(json))
+                                {
+                                    try
+                                    {
+                                        Console.WriteLine($"[PARSED JSON]: {json}");
+                                        using var doc = JsonDocument.Parse(json);
+                                        if (doc.RootElement.TryGetProperty("log", out var logElement))
+                                        {
+                                            var logJson = logElement.GetRawText();
+                                            var log = JsonSerializer.Deserialize<CombatLog>(logJson);
+                                            if (log != null)
+                                            {
+                                                MainThread.BeginInvokeOnMainThread(() =>
+                                                {
+                                                    CombatLogs.Add(log);
+                                                });
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine("Ошибка: CombatLog не удалось десериализовать");
+                                            }
+                                        }
+                                        if (doc.RootElement.TryGetProperty("combat", out var combatElement))
+                                        {
+                                            var combatJson = combatElement.GetRawText();
+                                            var newCombat = JsonSerializer.Deserialize<Combat>(combatJson);
+                                            if (newCombat != null)
+                                            {
+                                                MainThread.BeginInvokeOnMainThread(() =>
+                                                {
+                                                    combat = newCombat;
+                                                });
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("Поле 'log' не найдено в JSON");
+                                        }
+                                    }
+                                    catch (JsonException ex)
+                                    {
+                                        Console.WriteLine($"Ошибка парсинга JSON: {ex.Message}, JSON: {json}");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Console.WriteLine($"Общая ошибка при обработке JSON: {ex.Message}, JSON: {json}");
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Получен пустой JSON после 'data:'");
+                                }
+                            }
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Parse error: {ex.Message}");
-                }
+                    catch (OperationCanceledException)
+                    {
+                        Console.WriteLine("Операция отменена");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Ошибка при чтении потока: {ex.Message}");
+                        ConnectAsync(); // Trigger reconnection on stream error
+                    }
+                }, _cts.Token);
+
+                await _listenTask;
+                retryCount++;
             }
-        }, _cts.Token);
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"Ошибка HTTP подключения: {ex.Message}");
+                retryCount++;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка подключения: {ex.Message}");
+                retryCount++;
+            }
+
+            client.Dispose();
+
+            if (!_cts.Token.IsCancellationRequested && retryCount < maxRetries)
+            {
+                Console.WriteLine($"Переподключение через {retryDelaySeconds} секунд...");
+                await Task.Delay(TimeSpan.FromSeconds(retryDelaySeconds), _cts.Token);
+            }
+        }
+
+        if (retryCount >= maxRetries)
+        {
+            Console.WriteLine($"Достигнуто максимальное количество попыток переподключения ({maxRetries})");
+        }
     }
+
+
 
     [RelayCommand]
     public async Task SendPlayerActionAsync()
@@ -181,6 +294,15 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
         _cts?.Cancel();
         if (_listenTask != null) await _listenTask;
         _cts?.Dispose();
+    }
+    
+    [RelayCommand]
+    public async Task ManageParticipants()
+    {
+        if (combat != null && Shell.Current.Navigation.NavigationStack.LastOrDefault() is not CombatParticipantsPage)
+        {
+            await Shell.Current.Navigation.PushAsync(new CombatParticipantsPage(combat));
+        }
     }
 }
 
