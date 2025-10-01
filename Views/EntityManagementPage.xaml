@@ -5,10 +5,14 @@
             xmlns:local="using:DnDClient.Views"
             x:Class="DnDClient.Views.EntityManagementPage"
             xmlns:converters="using:DnDClient.Converters"
+            xmlns:vm="using:DnDClient.ViewModels"
             Title="Управление сущностями">
     <TabbedPage.Resources>
         <converters:BooleanNegationConverter x:Key="BooleanNegationConverter" />
     </TabbedPage.Resources>
+    <TabbedPage.BindingContext>
+        <vm:EntityManagementViewModel/>
+    </TabbedPage.BindingContext>
 
     <TabbedPage.Children>
         <ContentPage Title="NPC">
@@ -24,6 +28,25 @@
                             <Entry Placeholder="Профессия" Text="{Binding NewNPC.Occupation}" />
                             <Entry Placeholder="HP" Text="{Binding NewNPC.HitPoints}" Keyboard="Numeric" />
                             <Entry Placeholder="AC" Text="{Binding NewNPC.ArmorClass}" Keyboard="Numeric" />
+
+                            <!-- Attacks Section -->
+                            <Frame>
+                                <Grid RowDefinitions="*,*,Auto" ColumnDefinitions="9*,*">
+                                    <Button Grid.Row="0" Grid.Column="1" Command="{Binding AddAttackToNPCCommand}" Text="+" />
+                                    <CollectionView Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding NewNPC.Attacks}">
+                                        <CollectionView.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid ColumnDefinitions="{OnPlatform Default='*,*,*', WinUI='*,*,*'}">
+                                                    <Entry Grid.Column="0" Text="{Binding Name}" Placeholder="Название"/>
+                                                    <Entry Grid.Column="1" Text="{Binding AttackBonus}" Placeholder="Бонус"/>
+                                                    <Entry Grid.Column="2" Text="{Binding DamageDice}" Placeholder="Урон"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </CollectionView.ItemTemplate>
+                                    </CollectionView>
+                                    <Label Grid.Row="2" Grid.ColumnSpan="2" Text="Атаки" />
+                                </Grid>
+                            </Frame>
 
                             <StackLayout Orientation="Horizontal" Spacing="10">
                                 <Button Text="Сохранить" Command="{Binding SaveNPCChangesCommand}"
@@ -44,6 +67,25 @@
                             <Entry Placeholder="Профессия" Text="{Binding NewNPC.Occupation}" />
                             <Entry Placeholder="HP" Text="{Binding NewNPC.HitPoints}" Keyboard="Numeric" />
                             <Entry Placeholder="AC" Text="{Binding NewNPC.ArmorClass}" Keyboard="Numeric" />
+
+                            <!-- Attacks Section -->
+                            <Frame>
+                                <Grid RowDefinitions="*,*,Auto" ColumnDefinitions="9*,*">
+                                    <Button Grid.Row="0" Grid.Column="1" Command="{Binding AddAttackToNPCCommand}" Text="+" />
+                                    <CollectionView Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding NewNPC.Attacks}">
+                                        <CollectionView.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid ColumnDefinitions="{OnPlatform Default='*,*,*', WinUI='*,*,*'}">
+                                                    <Entry Grid.Column="0" Text="{Binding Name}" Placeholder="Название" />
+                                                    <Entry Grid.Column="1" Text="{Binding AttackBonus}" Placeholder="Бонус" />
+                                                    <Entry Grid.Column="2" Text="{Binding DamageDice}" Placeholder="Урон" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </CollectionView.ItemTemplate>
+                                    </CollectionView>
+                                    <Label Grid.Row="2" Grid.ColumnSpan="2" Text="Атаки" />
+                                </Grid>
+                            </Frame>
 
                             <Button Text="Создать" Command="{Binding CreateNPCCommand}" />
                         </StackLayout>
@@ -100,6 +142,25 @@
                             <Entry Placeholder="AC" Text="{Binding NewEnemy.ArmorClass}" Keyboard="Numeric" />
                             <Entry Placeholder="CR" Text="{Binding NewEnemy.ChallengeRating}" />
 
+                            <!-- Attacks Section -->
+                            <Frame>
+                                <Grid RowDefinitions="*,*,Auto" ColumnDefinitions="9*,*">
+                                    <Button Grid.Row="0" Grid.Column="1" Command="{Binding AddAttackToEnemyCommand}" Text="+" />
+                                    <CollectionView Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding NewEnemy.Attacks}">
+                                        <CollectionView.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid ColumnDefinitions="{OnPlatform Default='*,*,*', WinUI='*,*,*'}">
+                                                    <Entry Grid.Column="0" Text="{Binding Name}" Placeholder="Название"/>
+                                                    <Entry Grid.Column="1" Text="{Binding AttackBonus}" Placeholder="Бонус"/>
+                                                    <Entry Grid.Column="2" Text="{Binding DamageDice}" Placeholder="Урон"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </CollectionView.ItemTemplate>
+                                    </CollectionView>
+                                    <Label Grid.Row="2" Grid.ColumnSpan="2" Text="Атаки" />
+                                </Grid>
+                            </Frame>
+
                             <StackLayout Orientation="Horizontal" Spacing="10">
                                 <Button Text="Сохранить" Command="{Binding SaveEnemyChangesCommand}"
                                         BackgroundColor="#4CAF50" TextColor="White" />
@@ -119,6 +180,25 @@
                             <Entry Placeholder="HP" Text="{Binding NewEnemy.CurrentHitPoints}" Keyboard="Numeric" />
                             <Entry Placeholder="AC" Text="{Binding NewEnemy.ArmorClass}" Keyboard="Numeric" />
                             <Entry Placeholder="CR" Text="{Binding NewEnemy.ChallengeRating}" />
+
+                            <!-- Attacks Section -->
+                            <Frame>
+                                <Grid RowDefinitions="*,*,Auto" ColumnDefinitions="9*,*">
+                                    <Button Grid.Row="0" Grid.Column="1" Command="{Binding AddAttackToEnemyCommand}" Text="+" />
+                                    <CollectionView Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding NewEnemy.Attacks}">
+                                        <CollectionView.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid ColumnDefinitions="{OnPlatform Default='*,*,*', WinUI='*,*,*'}">
+                                                    <Entry Grid.Column="0" Text="{Binding Name}" Placeholder="Название" />
+                                                    <Entry Grid.Column="1" Text="{Binding AttackBonus}" Placeholder="Бонус" />
+                                                    <Entry Grid.Column="2" Text="{Binding DamageDice}" Placeholder="Урон" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </CollectionView.ItemTemplate>
+                                    </CollectionView>
+                                    <Label Grid.Row="2" Grid.ColumnSpan="2" Text="Атаки" />
+                                </Grid>
+                            </Frame>
 
                             <Button Text="Создать" Command="{Binding CreateEnemyCommand}" />
                         </StackLayout>

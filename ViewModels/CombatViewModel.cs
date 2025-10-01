@@ -32,7 +32,7 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
             Combat = _combat;
             MasterMode = _masterMode;
             IsPlayerTurn = !MasterMode && Combat.CurrentParticipant.Type == ParticipantType.Player;
-            CombatLogs = ApiHelper.Get<ObservableCollection<CombatLog>>("CombatLog");
+            CombatLogs = Combat.CombatLogs ?? new();
             combat.CombatLogs = CombatLogs;
         }
 
@@ -141,7 +141,7 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
                                             {
                                                 MainThread.BeginInvokeOnMainThread(() =>
                                                 {
-                                                    combat = newCombat;
+                                                    Combat.Participants = newCombat.Participants;
                                                 });
                                             }
                                         }
@@ -173,7 +173,7 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
                     catch (Exception ex)
                     {
                         Console.WriteLine($"Ошибка при чтении потока: {ex.Message}");
-                        ConnectAsync(); // Trigger reconnection on stream error
+                        ConnectAsync();
                     }
                 }, _cts.Token);
 
@@ -211,23 +211,30 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
     [RelayCommand]
     public async Task SendPlayerActionAsync()
     {
-        if (!IsPlayerTurn || Combat == null || SelectedTarget == null ||
-            string.IsNullOrEmpty(SelectedActionType))
-            return;
-
-        var log = new CombatLog
+        try
         {
-            CombatId = Combat.Id,
-            Type = SelectedActionType,
-            SourceId = Combat.CurrentParticipant.Id,
-            TargetId = SelectedTarget.Id,
-            Damage = AttackDamage,
-            Message = $"Игрок {Combat.CurrentParticipant.Name} использует " +
-                      $"{SelectedAttack?.Name ?? SelectedActionType} на {SelectedTarget.Name}" +
-                      $" ({(SelectedActionType == "attack" ? "урон" : "лечение")}: {AttackDamage})"
-        };
+            if (!IsPlayerTurn || Combat == null || SelectedTarget == null)
+                return;
+            if (AttackDamage > 0) SelectedActionType = "attack";
+            else if (AttackDamage < 0) SelectedActionType = "heal";
+            var log = new CombatLog
+            {
+                CombatId = Combat.Id,
+                Type = SelectedActionType,
+                SourceId = Combat.CurrentParticipant.Id,
+                TargetId = SelectedTarget.Id,
+                Damage = AttackDamage,
+                Message = $"Игрок {Combat.CurrentParticipant.Name} использует " +
+                          $"{SelectedAttack?.Name ?? SelectedActionType} на {SelectedTarget.Name}" +
+                          $" ({(SelectedActionType == "attack" ? "урон" : "лечение")}: {AttackDamage})"
+            };
 
-        ApiHelper.Post<CombatLog>(Serdeser.Serialize(log), "combat/player-move");
+            ApiHelper.Post<CombatLog>(Serdeser.Serialize(log), "combat/player-move");
+        }
+        catch (Exception e)
+        {
+            
+        }
     }
 
     [RelayCommand]
@@ -248,45 +255,57 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
     [RelayCommand]
     public async Task SendNpcActionAsync()
     {
-        if (!MasterMode || Combat == null || SelectedNpc == null ||
-            string.IsNullOrEmpty(SelectedActionType))
-            return;
-
-        var log = new CombatLog
+        try
         {
-            CombatId = Combat.Id,
-            Type = SelectedActionType,
-            SourceId = SelectedNpc.Id,
-            TargetId = SelectedTarget.Id,
-            Damage = AttackDamage,
-            Message = $"НПС {SelectedNpc.Name} использует " +
-                      $"{SelectedAttack?.Name ?? SelectedActionType} на {SelectedTarget?.Name ?? "цель"}" +
-                      $" ({(SelectedActionType == "attack" ? "урон" : "лечение")}: {AttackDamage})"
-        };
-
-        ApiHelper.Post<CombatLog>(Serdeser.Serialize(log), "combat/npc-move");
+            if (!MasterMode || Combat == null || SelectedNpc == null)
+                return;
+            if (AttackDamage > 0) SelectedActionType = "attack";
+            else if (AttackDamage < 0) { 
+                SelectedActionType = "heal";
+                AttackDamage *= -1;
+            }
+            var log = new CombatLog
+            {
+                Id = Guid.Empty,
+                CombatId = Combat.Id,
+                Type = SelectedActionType,
+                SourceId = SelectedNpc.Id,
+                TargetId = SelectedTarget.Id,
+                Damage = AttackDamage,
+                Message = $"НПС {SelectedNpc.Name} использует " +
+                          $"{SelectedAttack?.Name ?? SelectedActionType} на {SelectedTarget?.Name ?? "цель"}" +
+                          $" ({(SelectedActionType == "attack" ? "урон" : "лечение")}: {AttackDamage})"
+            };
+            string json = Serdeser.Serialize(log);
+            bool success = ApiHelper.Post<CombatLog>(json, $"Combat/{Combat.Id}/npc-move");
+        }
+        catch(Exception e){}
     }
 
     [RelayCommand]
     public async Task SendEnemyActionAsync()
     {
-        if (!MasterMode || Combat == null || SelectedEnemy == null ||
-            string.IsNullOrEmpty(SelectedActionType))
-            return;
-
-        var log = new CombatLog
+        try
         {
-            CombatId = Combat.Id,
-            Type = SelectedActionType,
-            SourceId = SelectedEnemy.Id,
-            TargetId = SelectedTarget.Id,
-            Damage = AttackDamage,
-            Message = $"Враг {SelectedEnemy.Name} использует " +
-                      $"{SelectedAttack?.Name ?? SelectedActionType} на {SelectedTarget?.Name ?? "цель"}" +
-                      $" ({(SelectedActionType == "attack" ? "урон" : "лечение")}: {AttackDamage})"
-        };
+            if (!MasterMode || Combat == null || SelectedEnemy == null)
+                return;
+            if (AttackDamage > 0) SelectedActionType = "attack";
+            else if (AttackDamage < 0) SelectedActionType = "heal";
+            var log = new CombatLog
+            {
+                CombatId = Combat.Id,
+                Type = SelectedActionType,
+                SourceId = SelectedEnemy.Id,
+                TargetId = SelectedTarget.Id,
+                Damage = AttackDamage,
+                Message = $"Враг {SelectedEnemy.Name} использует " +
+                          $"{SelectedAttack?.Name ?? SelectedActionType} на {SelectedTarget?.Name ?? "цель"}" +
+                          $" ({(SelectedActionType == "attack" ? "урон" : "лечение")}: {AttackDamage})"
+            };
 
-        ApiHelper.Post<CombatLog>(Serdeser.Serialize(log), "combat/enemy-move");
+            ApiHelper.Post<CombatLog>(Serdeser.Serialize(log), "combat/enemy-move");
+        }
+        catch(Exception e){}
     }
 
     public async Task DisconnectAsync()

@@ -72,8 +72,7 @@
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </Grid>
-                
-                <!-- Участники боя -->
+
                 <Grid Grid.Column="1" Grid.RowSpan="2" Padding="10" RowDefinitions="Auto,*">
                     <Label Text="Участники" Grid.Row="0" FontAttributes="Bold" />
                     <CollectionView Grid.Row="1" ItemsSource="{Binding Combat.Participants}">
@@ -97,11 +96,7 @@
                 <Label Text="Ваш ход" FontAttributes="Bold" />
                 <Picker Title="Тип действия" ItemsSource="{Binding ActionTypes}"
                         SelectedItem="{Binding SelectedActionType}" />
-                <Picker Title="Цель" ItemsSource="{Binding Combat.Participants}" ItemDisplayBinding="{Binding Name}"
-                        SelectedItem="{Binding SelectedTarget}" />
-                <Picker Title="Атака" ItemsSource="{Binding Combat.CurrentParticipant.Attacks}"
-                        ItemDisplayBinding="{Binding Name}" SelectedItem="{Binding SelectedAttack}"
-                        IsVisible="{Binding SelectedActionType}" />
+                <Picker Title="Цель" ItemsSource="{Binding Combat.Participants}" ItemDisplayBinding="{Binding Name}"/>
                 <Entry Placeholder="Урон/лечение" Keyboard="Numeric" Text="{Binding AttackDamage}" />
                 <Button Text="Отправить ход" Command="{Binding SendPlayerActionCommand}" />
             </StackLayout>
@@ -117,8 +112,6 @@
                         SelectedItem="{Binding SelectedActionType}" />
                 <Picker Title="Цель" ItemsSource="{Binding Combat.Participants}" ItemDisplayBinding="{Binding Name}"
                         SelectedItem="{Binding SelectedTarget}" />
-                <Picker Title="Атака" ItemsSource="{Binding SelectedNpc.Attacks}" ItemDisplayBinding="{Binding Name}"
-                        SelectedItem="{Binding SelectedAttack}" IsVisible="{Binding SelectedActionType}" />
                 <Entry Placeholder="Урон/лечение" Keyboard="Numeric" Text="{Binding AttackDamage}" />
                 <Button Text="Отправить ход за НПС" Command="{Binding SendNpcActionCommand}" BackgroundColor="#4CAF50"
                         TextColor="White" />
@@ -134,8 +127,6 @@
                         SelectedItem="{Binding SelectedActionType}" />
                 <Picker Title="Цель" ItemsSource="{Binding Combat.Participants}" ItemDisplayBinding="{Binding Name}"
                         SelectedItem="{Binding SelectedTarget}" />
-                <Picker Title="Атака" ItemsSource="{Binding SelectedEnemy.Attacks}" ItemDisplayBinding="{Binding Name}"
-                        SelectedItem="{Binding SelectedAttack}" IsVisible="{Binding SelectedActionType}" />
                 <Entry Placeholder="Урон/лечение" Keyboard="Numeric" Text="{Binding AttackDamage}" />
                 <Button Text="Отправить ход за врага" Command="{Binding SendEnemyActionCommand}"
                         BackgroundColor="#FF5722" TextColor="White" />

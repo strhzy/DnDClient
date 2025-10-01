@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DnDClient.Models;
@@ -19,8 +20,6 @@ public partial class EntityManagementViewModel : ObservableObject
 
     [ObservableProperty] private NPC newNPC = new NPC();
 
-    // [ObservableProperty]
-    // private Guid campaignId;
     [ObservableProperty] private ObservableCollection<NPC> npcs = new();
 
     [ObservableProperty] private Enemy selectedEnemy;
@@ -29,7 +28,6 @@ public partial class EntityManagementViewModel : ObservableObject
 
     public EntityManagementViewModel()
     {
-        //CampaignId = campaignId;
         LoadData();
     }
 
@@ -41,60 +39,14 @@ public partial class EntityManagementViewModel : ObservableObject
         Enemies = new ObservableCollection<Enemy>(
             ApiHelper.Get<ObservableCollection<Enemy>>("Enemy") ?? new ObservableCollection<Enemy>());
     }
-
-    // [RelayCommand]
-    // public async Task AddNpcToCampaignAsync(NPC npc)
-    // {
-    //     if (npc == null) return;
-    //
-    //     try
-    //     {
-    //         var result = ApiHelper.Post<string>($"", $"Campaign/{CampaignId}/add_npc/{npc.Id}");
-    //         
-    //         if (result != null)
-    //         {
-    //             await Shell.Current.DisplayAlert("Успех", $"NPC {npc.Name} добавлен в кампанию", "OK");
-    //         }
-    //         else
-    //         {
-    //             await Shell.Current.DisplayAlert("Ошибка", "Не удалось добавить NPC в кампанию", "OK");
-    //         }
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         await Shell.Current.DisplayAlert("Ошибка", $"Ошибка при добавлении NPC: {ex.Message}", "OK");
-    //     }
-    // }
-    //
-    // [RelayCommand]
-    // public async Task AddEnemyToCampaignAsync(Enemy enemy)
-    // {
-    //     if (enemy == null) return;
-    //
-    //     try
-    //     {
-    //         var result = ApiHelper.Post<string>($"", $"Campaign/{CampaignId}/add_enemy/{enemy.Id}");
-    //         
-    //         if (result != null)
-    //         {
-    //             await Shell.Current.DisplayAlert("Успех", $"Враг {enemy.Name} добавлен в кампанию", "OK");
-    //         }
-    //         else
-    //         {
-    //             await Shell.Current.DisplayAlert("Ошибка", "Не удалось добавить врага в кампанию", "OK");
-    //         }
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         await Shell.Current.DisplayAlert("Ошибка", $"Ошибка при добавлении врага: {ex.Message}", "OK");
-    //     }
-    // }
-
-    // NPC CRUD operations
+    
     [RelayCommand]
     public void CreateNPC()
     {
-        NewNPC.Attacks = new ObservableCollection<Attack>();
+        foreach (var attack in NewNPC.Attacks)
+        {
+            ApiHelper.Post<Attack>(Serdeser.Serialize(attack), "Attack");
+        }
         var json = JsonConvert.SerializeObject(NewNPC);
         var success = ApiHelper.Post<NPC>(json, "NPC");
 
@@ -132,6 +84,7 @@ public partial class EntityManagementViewModel : ObservableObject
             Description = npc.Description,
             HitPoints = npc.HitPoints,
             ArmorClass = npc.ArmorClass,
+            Attacks = new ObservableCollection<Attack>(npc.Attacks ?? new ObservableCollection<Attack>())
         };
         IsEditingNPC = true;
     }
@@ -139,7 +92,10 @@ public partial class EntityManagementViewModel : ObservableObject
     [RelayCommand]
     public void SaveNPCChanges()
     {
-        NewNPC.Attacks = new ObservableCollection<Attack>();
+        foreach (var attack in NewNPC.Attacks)
+        {
+            ApiHelper.Put<Attack>(Serdeser.Serialize(attack), "Attack", attack.Id);
+        }
         if (NewNPC == null) return;
         var json = JsonConvert.SerializeObject(NewNPC);
         var result = ApiHelper.Put<NPC>(json, "NPC", NewNPC.Id);
@@ -168,11 +124,23 @@ public partial class EntityManagementViewModel : ObservableObject
         }
     }
 
-    // Enemy CRUD operations
+    [RelayCommand]
+    public async Task AddAttackToNPC()
+    {
+        var attack = new Attack();
+        attack.NpcId = NewNPC.Id;
+        NewNPC.Attacks = new();
+        NewNPC.Attacks.Add(attack);
+    }
+
     [RelayCommand]
     public void CreateEnemy()
     {
-        NewEnemy.Attacks = new ObservableCollection<Attack>();
+        foreach (var attack in NewEnemy.Attacks)
+        {
+            ApiHelper.Post<Attack>(Serdeser.Serialize(attack), "Attack");
+        }
+        
         var json = JsonConvert.SerializeObject(NewEnemy);
         var success = ApiHelper.Post<Enemy>(json, "Enemy");
 
@@ -210,9 +178,8 @@ public partial class EntityManagementViewModel : ObservableObject
             Description = enemy.Description,
             CurrentHitPoints = enemy.CurrentHitPoints,
             ArmorClass = enemy.ArmorClass,
-            SpecialAbilities =
-                new ObservableCollection<SpecialAbility>(enemy.SpecialAbilities ??
-                                                         new ObservableCollection<SpecialAbility>())
+            SpecialAbilities = new ObservableCollection<SpecialAbility>(enemy.SpecialAbilities ?? new ObservableCollection<SpecialAbility>()),
+            Attacks = new ObservableCollection<Attack>(enemy.Attacks ?? new ObservableCollection<Attack>())
         };
         IsEditingEnemy = true;
     }
@@ -220,7 +187,10 @@ public partial class EntityManagementViewModel : ObservableObject
     [RelayCommand]
     public void SaveEnemyChanges()
     {
-        NewEnemy.Attacks = new ObservableCollection<Attack>();
+        foreach (var attack in NewEnemy.Attacks)
+        {
+            ApiHelper.Put<Attack>(Serdeser.Serialize(attack), "Attack", attack.Id);
+        }
         if (NewEnemy == null) return;
         var json = JsonConvert.SerializeObject(NewEnemy);
         var result = ApiHelper.Put<Enemy>(json, "Enemy", NewEnemy.Id);
@@ -247,6 +217,15 @@ public partial class EntityManagementViewModel : ObservableObject
         {
             Enemies.Remove(enemy);
         }
+    }
+
+    [RelayCommand]
+    public async Task AddAttackToEnemy()
+    {
+        var attack = new Attack();
+        attack.EnemyId = NewEnemy.Id;
+        NewEnemy.Attacks = new();
+        NewEnemy.Attacks.Add(attack);
     }
 
     [RelayCommand]
