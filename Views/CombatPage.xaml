@@ -94,8 +94,6 @@
             <!-- UI для игрока -->
             <StackLayout Grid.Row="2" Grid.ColumnSpan="2" Padding="10" IsVisible="{Binding IsPlayerTurn}">
                 <Label Text="Ваш ход" FontAttributes="Bold" />
-                <Picker Title="Тип действия" ItemsSource="{Binding ActionTypes}"
-                        SelectedItem="{Binding SelectedActionType}" />
                 <Picker Title="Цель" ItemsSource="{Binding Combat.Participants}" ItemDisplayBinding="{Binding Name}"/>
                 <Entry Placeholder="Урон/лечение" Keyboard="Numeric" Text="{Binding AttackDamage}" />
                 <Button Text="Отправить ход" Command="{Binding SendPlayerActionCommand}" />
@@ -108,8 +106,6 @@
                         ItemsSource="{Binding Combat.Participants, Converter={StaticResource NpcFilterConverter}}"
                         ItemDisplayBinding="{Binding Name}"
                         SelectedItem="{Binding SelectedNpc}" />
-                <Picker Title="Тип действия" ItemsSource="{Binding ActionTypes}"
-                        SelectedItem="{Binding SelectedActionType}" />
                 <Picker Title="Цель" ItemsSource="{Binding Combat.Participants}" ItemDisplayBinding="{Binding Name}"
                         SelectedItem="{Binding SelectedTarget}" />
                 <Entry Placeholder="Урон/лечение" Keyboard="Numeric" Text="{Binding AttackDamage}" />
@@ -123,8 +119,6 @@
                         ItemsSource="{Binding Combat.Participants, Converter={StaticResource EnemyFilterConverter}}"
                         ItemDisplayBinding="{Binding Name}"
                         SelectedItem="{Binding SelectedEnemy}" />
-                <Picker Title="Тип действия" ItemsSource="{Binding ActionTypes}"
-                        SelectedItem="{Binding SelectedActionType}" />
                 <Picker Title="Цель" ItemsSource="{Binding Combat.Participants}" ItemDisplayBinding="{Binding Name}"
                         SelectedItem="{Binding SelectedTarget}" />
                 <Entry Placeholder="Урон/лечение" Keyboard="Numeric" Text="{Binding AttackDamage}" />
