@@ -229,7 +229,7 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
                           $" ({(SelectedActionType == "attack" ? "урон" : "лечение")}: {AttackDamage})"
             };
 
-            ApiHelper.Post<CombatLog>(Serdeser.Serialize(log), "combat/player-move");
+            ApiHelper.Post<CombatLog>(Serdeser.Serialize(log), $"Combat/{Combat.Id}/player-move");
         }
         catch (Exception e)
         {
@@ -303,7 +303,7 @@ public partial class CombatViewModel : ObservableObject, IAsyncDisposable
                           $" ({(SelectedActionType == "attack" ? "урон" : "лечение")}: {AttackDamage})"
             };
 
-            ApiHelper.Post<CombatLog>(Serdeser.Serialize(log), "combat/enemy-move");
+            ApiHelper.Post<CombatLog>(Serdeser.Serialize(log), $"Combat/{Combat.Id}/enemy-move");
         }
         catch(Exception e){}
     }
